@@ -482,7 +482,7 @@
       }
       var storageOK = probeStorage();
       function emptyState() {
-        return { xp: 0, totalAnswered: 0, totalCorrect: 0, bestStreak: 0, graduatedCount: 0, examPassed: false, stats: {}, badges: [], savedAt: null };
+        return { xp: 0, totalAnswered: 0, totalCorrect: 0, bestStreak: 0, graduatedCount: 0, examPassed: false, shuffleChoices: true, stats: {}, badges: [], savedAt: null };
       }
       function sanitizeState(s) {
         if (!s || typeof s !== "object") return null;
@@ -494,6 +494,7 @@
           if (typeof base[f] !== "number" || !isFinite(base[f]) || base[f] < 0) base[f] = 0;
         });
         if (typeof base.examPassed !== "boolean") base.examPassed = false;
+        if (typeof base.shuffleChoices !== "boolean") base.shuffleChoices = true;
         return base;
       }
       function parseStored(raw) {
@@ -563,13 +564,13 @@
           lw += pad36(s2 && s2.lastWrongAt ? dateToDays(s2.lastWrongAt) + 1 : 0, 3);
         }
         var badgeBits = bitmapEncode(BADGES.length, function (idx) { return st.badges.indexOf(BADGES[idx].id) !== -1; });
-        return ["1", b36(savedMs), b36(st.xp), b36(st.totalAnswered), b36(st.totalCorrect), b36(st.bestStreak), b36(st.graduatedCount), st.examPassed ? "1" : "0", att, clr, wl, wc, lw, badgeBits].join(".");
+        return ["1", b36(savedMs), b36(st.xp), b36(st.totalAnswered), b36(st.totalCorrect), b36(st.bestStreak), b36(st.graduatedCount), st.examPassed ? "1" : "0", att, clr, wl, wc, lw, badgeBits, st.shuffleChoices === false ? "0" : "1"].join(".");
       }
       function decodeCookieValue(raw) {
         if (!raw) return null;
         try {
           var f = String(raw).split(".");
-          if (f.length !== 14 || f[0] !== "1") return null;
+          if ((f.length !== 14 && f.length !== 15) || f[0] !== "1") return null;
           var att = bitmapDecode(f[8], QUESTIONS.length);
           var clr = bitmapDecode(f[9], QUESTIONS.length);
           var wl = bitmapDecode(f[10], QUESTIONS.length);
@@ -579,6 +580,7 @@
           var st = emptyState();
           st.xp = unb36(f[2]); st.totalAnswered = unb36(f[3]); st.totalCorrect = unb36(f[4]);
           st.bestStreak = unb36(f[5]); st.graduatedCount = unb36(f[6]); st.examPassed = f[7] === "1";
+          st.shuffleChoices = f.length >= 15 ? f[14] !== "0" : true;
           var ms = unb36(f[1]);
           st.savedAt = ms > 0 ? new Date(ms).toISOString() : null;
           for (var i = 0; i < QUESTIONS.length; i++) {
@@ -840,6 +842,25 @@
       var catUnattemptedOnly = false; // カテゴリー別「解いてない問題だけ」トグル（画面上だけの状態）
       var randomUnattemptedOnly = false; // ランダム10問「解いてない問題から出題」トグル（同上）
 
+      // 選択肢の表示順: 問題が表示されるたびに生成し、表示中（回答前後）は quiz.choiceOrder に固定する。
+      // 正誤判定は表示位置ではなく元の選択肢インデックス（内容）で行う。
+      // 〇×問題（選択肢2つ）は〇→×の順で固定し、シャッフルしない。設定OFFのときも元の並び。
+      function makeChoiceOrder(q) {
+        var idx = q.choices.map(function (_, i) { return i; });
+        if (!q || q.choices.length <= 2) return idx;
+        if (state.shuffleChoices === false) return idx;
+        return shuffle(idx);
+      }
+      function currentChoiceOrder() {
+        if (!session || !quiz) return [];
+        var q = session.questions[quiz.index];
+        if (!q) return [];
+        if (!quiz.choiceOrder || quiz.choiceOrder.length !== q.choices.length) {
+          quiz.choiceOrder = makeChoiceOrder(q);
+        }
+        return quiz.choiceOrder;
+      }
+
       function buildSession(mode, categoryName, options) {
         var unOnly = !!(options && options.unattemptedOnly);
         if (mode === "sequential") return { mode: mode, title: MODE_LABELS.sequential, questions: QUESTIONS.slice() };
@@ -867,7 +888,7 @@
       function startSession(s) {
         if (!s.questions.length) return;
         session = s;
-        quiz = { index: 0, picked: null, results: [], xpEarned: 0, bestStreak: 0, streak: 0, leveledUp: false, newBadges: [], burst: 0, startLevel: levelProgress(state.xp).level };
+        quiz = { index: 0, picked: null, choiceOrder: makeChoiceOrder(s.questions[0]), results: [], xpEarned: 0, bestStreak: 0, streak: 0, leveledUp: false, newBadges: [], burst: 0, startLevel: levelProgress(state.xp).level };
         summary = null;
         view = "quiz";
         render();
@@ -1036,6 +1057,7 @@
         }).join("") + "</div>";
         // Settings
         h += '<section class="settings"><h2>' + icon("gear", 18) + "設定</h2>";
+        h += '<div style="margin-top:.75rem">' + toggleHtml("toggle-shuffle-choices", state.shuffleChoices !== false, "選択肢をシャッフル", "ONにすると、4択問題の選択肢の並びが問題を表示するたびにランダムになります。〇×問題は〇→×の順で固定です。OFFにすると元の並びに戻ります（この設定も記録と一緒に保存されます）") + "</div>";
         // Backup export / import
         h += '<div class="backup-box"><p class="font-round" style="font-weight:800">記録のバックアップ</p>' +
           '<p style="margin-top:.375rem;font-size:14px;line-height:1.7;color:var(--dim)">ブラウザの記録が消えてしまったときや、別の端末で続きをしたいときのために、学習記録を書き出しておけます。書き出した記録は下の「読み込む」からいつでも復元できます。</p>' +
@@ -1096,15 +1118,16 @@
           (graduating ? '<span class="q-grad">復習中：正解で卒業！</span>' : "") +
           "</div>" +
           '<h2 class="q-text">' + esc(q.question) + "</h2>" +
-          '<div class="choices">' + q.choices.map(function (choice, i) {
+          '<div class="choices">' + currentChoiceOrder().map(function (orig, disp) {
+            var choice = q.choices[orig];
             var cls = "choice";
-            var mark = String(i + 1);
+            var mark = String(disp + 1);
             if (answered) {
-              if (i === q.answer) { cls += " is-answer"; mark = icon("check", 16); }
-              else if (i === quiz.picked) { cls += " is-picked-wrong"; mark = icon("x", 16); }
+              if (orig === q.answer) { cls += " is-answer"; mark = icon("check", 16); }
+              else if (orig === quiz.picked) { cls += " is-picked-wrong"; mark = icon("x", 16); }
               else cls += " is-dim";
             }
-            return '<button type="button" class="' + cls + '" data-action="pick" data-arg="' + i + '"' + (answered ? " disabled" : "") + ' aria-label="選択肢' + (i + 1) + "：" + esc(choice) + '"><span class="mark font-round">' + mark + '</span><span style="flex:1">' + esc(choice) + "</span></button>";
+            return '<button type="button" class="' + cls + '" data-action="pick" data-arg="' + disp + '"' + (answered ? " disabled" : "") + ' aria-label="選択肢' + (disp + 1) + "：" + esc(choice) + '"><span class="mark font-round">' + mark + '</span><span style="flex:1">' + esc(choice) + "</span></button>";
           }).join("") + "</div>";
         if (answered) {
           var isCorrect = quiz.picked === q.answer;
@@ -1243,6 +1266,10 @@
           catUnattemptedOnly = !catUnattemptedOnly; render();
         } else if (action === "toggle-random-unattempted") {
           randomUnattemptedOnly = !randomUnattemptedOnly; render();
+        } else if (action === "toggle-shuffle-choices") {
+          state.shuffleChoices = !(state.shuffleChoices !== false);
+          saveState();
+          render();
         } else if (action === "open-wrong") {
           view = "wrongList"; wrongOpenId = null; render(); window.scrollTo(0, 0);
         } else if (action === "home") {
@@ -1250,7 +1277,9 @@
         } else if (action === "pick") {
           if (!session || !quiz || quiz.picked !== null) return;
           var q = session.questions[quiz.index];
-          var picked = Number(arg);
+          var order = currentChoiceOrder();
+          var dispPicked = Number(arg);
+          var picked = order[dispPicked] !== undefined ? order[dispPicked] : dispPicked;
           var wasOnList = !!(state.stats[q.id] && state.stats[q.id].onWrongList);
           var correct = picked === q.answer;
           quiz.picked = picked;
@@ -1261,7 +1290,7 @@
         } else if (action === "next") {
           if (!session || !quiz) return;
           if (quiz.index + 1 >= session.questions.length) finishSession();
-          else { quiz.index += 1; quiz.picked = null; render(); window.scrollTo(0, 0); }
+          else { quiz.index += 1; quiz.picked = null; quiz.choiceOrder = makeChoiceOrder(session.questions[quiz.index]); render(); window.scrollTo(0, 0); }
         } else if (action === "quit") {
           if (!session || !quiz) { view = "home"; render(); return; }
           if (quiz.results.length === 0) { session = null; quiz = null; view = "home"; render(); window.scrollTo(0, 0); }
