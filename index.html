@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>児童発達支援士 勉強クエスト 共有版</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fff8ec;
+        --surface: #fffdf8;
+        --surface-alt: #fdf0da;
+        --text: #3b2a20;
+        --dim: #7a6350;
+        --border: #ecd9ba;
+        --accent: #e8813a;
+        --accent-ink: #ffffff;
+        --good: #2f8f5b;
+        --bad: #cf4436;
+        --gold: #d9a514;
+        --ai-bg: #edf3fa;
+        --ai-border: #b7cfe6;
+        --ai-accent: #2f5d8a;
+        --radius: 16px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #221812;
+          --surface: #2f2119;
+          --surface-alt: #3d2b1f;
+          --text: #f8edde;
+          --dim: #c9b096;
+          --border: #54402e;
+          --accent: #f09a54;
+          --accent-ink: #2a1a10;
+          --good: #63c78d;
+          --bad: #f0857a;
+          --gold: #eec54a;
+          --ai-bg: #1d2c3d;
+          --ai-border: #40648c;
+          --ai-accent: #9cc4ee;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+      button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+      button:disabled { cursor: default; }
+      .font-round { font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", system-ui, sans-serif; }
+      main { margin: 0 auto; width: 100%; max-width: 42rem; padding: 0 1rem 2.5rem; }
+      h2 { margin: 0; }
+      p { margin: 0; }
+      svg { display: inline-block; vertical-align: middle; }
+
+      .card {
+        border: 2px solid var(--border);
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: 0 3px 0 var(--border);
+      }
+      .bar-track { overflow: hidden; border-radius: 999px; background: var(--surface-alt); }
+      .bar-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width .5s ease; }
+
+      /* Home status */
+      .status-panel { margin-top: 1rem; padding: 1.25rem; }
+      .status-flex { display: flex; align-items: center; gap: 1rem; }
+      .level-badge {
+        flex-shrink: 0; width: 5rem; height: 5rem; border-radius: 50%;
+        border: 4px solid var(--gold); background: var(--surface-alt);
+        display: flex; align-items: center; justify-content: center; text-align: center;
+      }
+      .level-badge .lv-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; color: var(--dim); line-height: 1.2; }
+      .level-badge .lv-num { font-size: 30px; font-weight: 800; line-height: 1; }
+      .stat-grid { margin-top: 1rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; text-align: center; }
+      .stat-cell { border-radius: 12px; background: var(--surface-alt); padding: .625rem .25rem; }
+      .stat-cell .v { font-size: 18px; font-weight: 800; line-height: 1; }
+      .stat-cell .l { margin-top: .25rem; font-size: 11px; line-height: 1.3; color: var(--dim); }
+      .wrong-link {
+        margin-top: 1rem; display: flex; min-height: 52px; width: 100%;
+        align-items: center; justify-content: space-between; gap: .5rem;
+        border-radius: 12px; border: 2px dashed var(--bad); padding: .5rem 1rem; text-align: left;
+      }
+      .storage-note { margin-top: .75rem; font-size: 12px; line-height: 1.5; color: var(--dim); text-align: center; }
+      .save-box { margin-top: .75rem; display: flex; gap: .5rem; border-radius: 12px; padding: .75rem .875rem; font-size: 13px; line-height: 1.65; text-align: left; }
+      .save-box.failed { border: 2px solid var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
+      .save-box svg { flex-shrink: 0; margin-top: 2px; }
+      .backup-box { margin-top: .75rem; border: 2px solid var(--border); border-radius: 12px; background: var(--surface); padding: 1rem; }
+      .backup-box .btn-ghost { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+      .code-area { margin-top: .75rem; width: 100%; border-radius: 8px; border: 2px solid var(--border); background: var(--surface-alt); color: var(--text); padding: .625rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; resize: vertical; }
+      .backup-msg { margin-top: .75rem; font-size: 14px; line-height: 1.6; font-weight: 700; }
+      .backup-msg.ok { color: var(--good); }
+      .backup-msg.ng { color: var(--bad); }
+      .file-input { display: none; }
+      .file-label { cursor: pointer; text-align: center; }
+      .attempt-row { margin-top: .75rem; border-radius: 12px; background: var(--surface-alt); padding: .75rem 1rem; }
+      .attempt-nums { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; font-size: 14px; }
+      .attempt-nums .n { font-size: 18px; font-weight: 800; }
+      .attempt-bar { margin-top: .5rem; height: 10px; }
+      .toggle-card { display: flex; width: 100%; align-items: center; gap: .75rem; padding: .75rem 1rem; }
+      .toggle-card .tt { display: block; font-weight: 700; line-height: 1.4; }
+      .toggle-card .td { display: block; font-size: 13px; line-height: 1.45; color: var(--dim); }
+      .switch { position: relative; flex-shrink: 0; width: 52px; height: 30px; min-height: 30px; border-radius: 999px; border: 2px solid var(--border); background: var(--surface-alt); padding: 0; transition: background .2s ease, border-color .2s ease; }
+      .switch .knob { position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s ease; }
+      .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+      .switch[aria-checked="true"] .knob { left: 24px; }
+      .cat-card:disabled { opacity: .55; }
+      .cat-sub .remain { font-weight: 700; color: var(--text); }
+
+      .section-title { margin-top: 2rem; font-size: 20px; font-weight: 800; }
+      .section-title .sub { margin-left: .5rem; font-size: 16px; font-weight: 700; color: var(--dim); }
+      .stack { margin-top: .75rem; display: flex; flex-direction: column; gap: .75rem; }
+
+      .mode-card {
+        display: flex; width: 100%; align-items: center; gap: .875rem;
+        padding: 1rem; text-align: left; transition: transform .08s ease;
+      }
+      .mode-card:active { transform: scale(.99); }
+      .mode-card:disabled { opacity: .55; }
+      .mode-icon { flex-shrink: 0; width: 3rem; height: 3rem; border-radius: 12px; color: #fff; display: flex; align-items: center; justify-content: center; }
+      .mode-card .t { display: block; font-size: 18px; font-weight: 700; line-height: 1.4; }
+      .mode-card .d { display: block; font-size: 14px; line-height: 1.45; color: var(--dim); }
+      .mode-card .chev { flex-shrink: 0; color: var(--dim); }
+
+      .cat-card { display: block; width: 100%; padding: 1rem; text-align: left; transition: transform .08s ease; }
+      .cat-card:active { transform: scale(.99); }
+      .cat-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+      .cat-name { display: flex; align-items: center; gap: .5rem; font-weight: 700; }
+      .cat-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+      .cat-rate { display: flex; align-items: center; gap: .25rem; font-size: 14px; color: var(--dim); white-space: nowrap; }
+      .cat-bar { margin-top: .625rem; height: 12px; }
+      .cat-sub { margin-top: .375rem; font-size: 14px; color: var(--dim); }
+      .cat-sub .done { margin-left: .5rem; font-weight: 700; }
+
+      .badge-grid { margin-top: .75rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+      .badge-cell { padding: .75rem; text-align: center; }
+      .badge-circle { margin: 0 auto; width: 3.5rem; height: 3.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+      .badge-name { margin-top: .5rem; font-size: 14px; font-weight: 700; line-height: 1.35; }
+      .badge-cond { margin-top: .25rem; font-size: 11px; line-height: 1.45; color: var(--dim); }
+
+      .settings { margin-top: 2.5rem; border-top: 2px dashed var(--border); padding-top: 1.25rem; }
+      .settings h2 { display: flex; align-items: center; gap: .5rem; font-size: 16px; font-weight: 700; color: var(--dim); }
+      .reset-btn {
+        margin-top: .75rem; display: flex; min-height: 48px; align-items: center; gap: .5rem;
+        border-radius: 12px; border: 2px solid var(--border); background: var(--surface);
+        padding: .5rem 1rem; font-weight: 700; color: var(--bad);
+      }
+      .reset-confirm { margin-top: .75rem; border: 2px solid var(--bad); border-radius: 12px; background: var(--surface); padding: 1rem; }
+      .reset-confirm p { font-size: 14px; line-height: 1.7; }
+      .btn-row { margin-top: .75rem; display: flex; gap: .5rem; }
+      .btn-danger { min-height: 48px; flex: 1; border-radius: 12px; background: var(--bad); padding: .5rem 1rem; font-weight: 700; color: #fff; }
+      .btn-ghost { min-height: 48px; flex: 1; border-radius: 12px; border: 2px solid var(--border); padding: .5rem 1rem; font-weight: 700; }
+
+      /* Quiz */
+      .quiz-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: 1rem; }
+      .quiz-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+      .quit-btn {
+        flex-shrink: 0; min-height: 40px; border-radius: 8px; border: 2px solid var(--border);
+        background: var(--surface); padding: .25rem .75rem; font-size: 14px; font-weight: 700; color: var(--dim);
+      }
+      .quiz-progress { margin-top: .75rem; display: flex; align-items: center; gap: .75rem; font-size: 14px; }
+      .quiz-progress .cnt { font-weight: 700; white-space: nowrap; }
+      .quiz-progress .track { height: 14px; flex: 1; }
+      .quiz-progress .rate { flex-shrink: 0; color: var(--dim); }
+      .streak-pill {
+        margin-top: .5rem; display: inline-flex; align-items: center; gap: .25rem;
+        border-radius: 999px; background: var(--surface-alt); padding: .25rem .75rem;
+        font-size: 14px; font-weight: 700; color: var(--bad);
+      }
+      .q-card { margin-top: 1rem; padding: 1.25rem; }
+      .q-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+      .q-cat { border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; color: #fff; }
+      .q-num { font-size: 14px; font-weight: 700; color: var(--dim); }
+      .q-grad { border-radius: 999px; background: var(--surface-alt); padding: 2px 10px; font-size: 12px; font-weight: 700; color: var(--good); }
+      .q-text { margin-top: .75rem; font-size: 18px; font-weight: 700; line-height: 1.65; }
+      .choices { margin-top: 1.25rem; display: flex; flex-direction: column; gap: .75rem; }
+      .choice {
+        display: flex; min-height: 56px; width: 100%; align-items: center; gap: .75rem;
+        border-radius: 12px; border: 2px solid var(--border); background: var(--surface);
+        padding: .75rem 1rem; text-align: left; font-size: 16px; line-height: 1.55;
+      }
+      .choice .mark {
+        flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 50%;
+        border: 2px solid var(--border); color: var(--dim);
+        display: flex; align-items: center; justify-content: center; font-weight: 800;
+      }
+      .choice.is-answer { border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, var(--surface)); }
+      .choice.is-answer .mark { border-color: var(--good); color: var(--good); }
+      .choice.is-picked-wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--surface)); }
+      .choice.is-picked-wrong .mark { border-color: var(--bad); color: var(--bad); }
+      .choice.is-dim { opacity: .55; }
+
+      .feedback { margin-top: 1.25rem; position: relative; }
+      .feedback-box { border-radius: 12px; padding: 1rem; }
+      .feedback-box.ok { background: color-mix(in srgb, var(--good) 12%, var(--surface)); }
+      .feedback-box.ng { background: color-mix(in srgb, var(--bad) 10%, var(--surface)); }
+      .feedback-title { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: 20px; font-weight: 800; }
+      .feedback-title.ok { color: var(--good); }
+      .feedback-title.ng { color: var(--bad); }
+      .xp-pill { border-radius: 999px; background: var(--surface); padding: 2px 10px; font-size: 14px; font-weight: 700; color: var(--accent); }
+      .grad-pill { border-radius: 999px; background: var(--surface); padding: 2px 10px; font-size: 14px; font-weight: 700; color: var(--good); }
+      .feedback-note { margin-top: .375rem; font-size: 14px; color: var(--dim); }
+      .expl-block { margin-top: .75rem; border-top: 1px solid var(--border); padding-top: .75rem; }
+      .expl-label { display: flex; align-items: center; gap: .375rem; font-size: 14px; font-weight: 700; color: var(--dim); }
+      .expl-text { margin-top: .375rem; line-height: 1.75; }
+      .next-btn {
+        margin-top: 1rem; min-height: 56px; width: 100%; border-radius: 12px;
+        background: var(--accent); padding: .75rem 1rem; font-size: 18px; font-weight: 800;
+        color: var(--accent-ink); box-shadow: 0 3px 0 rgba(0,0,0,.15);
+      }
+      .next-btn:active { transform: scale(.99); }
+
+      /* AI panel */
+      .ai-panel { margin-top: 1rem; overflow: hidden; border-radius: 12px; border: 2px solid var(--ai-border); background: var(--ai-bg); }
+      .ai-head { display: flex; min-height: 52px; width: 100%; align-items: center; gap: .625rem; padding: .75rem 1rem; text-align: left; }
+      .ai-head .ai-ic { flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 50%; background: var(--ai-accent); color: #fff; display: flex; align-items: center; justify-content: center; }
+      .ai-head .ai-t { display: block; font-weight: 800; line-height: 1.4; color: var(--ai-accent); }
+      .ai-head .ai-s { display: block; font-size: 12px; line-height: 1.4; color: var(--dim); }
+      .ai-head .ai-chev { flex-shrink: 0; color: var(--ai-accent); transition: transform .2s ease; }
+      .ai-head .ai-chev.open { transform: rotate(180deg); }
+      .ai-body { padding: 0 1rem 1rem; }
+      .ai-parts { border-top: 1px solid var(--ai-border); padding-top: .875rem; display: flex; flex-direction: column; gap: .875rem; }
+      .ai-part .ai-part-label { display: flex; align-items: center; gap: .375rem; font-size: 14px; font-weight: 700; color: var(--ai-accent); }
+      .ai-part .ai-n { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--ai-accent); color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+      .ai-part p { margin-top: .25rem; line-height: 1.75; }
+      .ai-part.last { border-radius: 8px; background: var(--surface); padding: .75rem .875rem; }
+
+      /* Result */
+      .result-wrap { padding-top: 1.5rem; text-align: center; }
+      .result-kicker { font-size: 14px; font-weight: 700; letter-spacing: .1em; color: var(--dim); }
+      .result-big { margin-top: .75rem; font-size: 36px; font-weight: 800; line-height: 1.25; }
+      .result-big.ok { color: var(--good); }
+      .result-big.ng { color: var(--bad); }
+      .result-sub { margin-top: .5rem; color: var(--dim); }
+      .levelup-box {
+        margin-top: 1.25rem; display: flex; align-items: center; gap: .75rem; text-align: left;
+        border: 2px solid var(--gold); border-radius: var(--radius); background: var(--surface); padding: 1rem;
+      }
+      .levelup-ic { flex-shrink: 0; width: 3rem; height: 3rem; border-radius: 50%; background: var(--gold); color: #fff; display: flex; align-items: center; justify-content: center; }
+      .newbadges { margin-top: 1rem; text-align: left; border: 2px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 1rem; }
+      .newbadges .nb-row { display: flex; align-items: center; gap: .625rem; margin-top: .5rem; }
+      .nb-ic { flex-shrink: 0; width: 2.25rem; height: 2.25rem; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; }
+      .result-stats { margin-top: 1.25rem; padding: 1.25rem; text-align: left; }
+      .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; text-align: center; }
+      .result-cell { border-radius: 12px; background: var(--surface-alt); padding: .75rem .5rem; }
+      .result-cell .v { font-size: 24px; font-weight: 800; line-height: 1.15; }
+      .result-cell .v small { font-size: 16px; color: var(--dim); }
+      .result-cell .l { margin-top: 2px; font-size: 12px; color: var(--dim); }
+      .result-actions { margin-top: 1.5rem; display: flex; flex-direction: column; gap: .75rem; }
+      .btn-review {
+        display: flex; min-height: 56px; width: 100%; align-items: center; justify-content: center; gap: .5rem;
+        border-radius: 12px; background: var(--good); padding: .75rem 1rem; font-size: 18px; font-weight: 800;
+        color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.15);
+      }
+      .btn-retry { min-height: 52px; width: 100%; border-radius: 12px; border: 2px solid var(--border); background: var(--surface); padding: .625rem 1rem; font-weight: 800; }
+      .btn-retry:disabled { opacity: .55; }
+      .btn-home {
+        display: flex; min-height: 52px; width: 100%; align-items: center; justify-content: center; gap: .5rem;
+        border-radius: 12px; background: var(--accent); padding: .625rem 1rem; font-weight: 800; color: var(--accent-ink);
+      }
+
+      /* Wrong list */
+      .wrong-head { display: flex; align-items: center; gap: .5rem; padding-top: 1rem; }
+      .back-btn {
+        display: flex; min-height: 44px; align-items: center; gap: .25rem; border-radius: 8px;
+        border: 2px solid var(--border); background: var(--surface); padding: .375rem .75rem; font-weight: 700;
+      }
+      .wrong-head h2 { font-size: 20px; font-weight: 800; }
+      .empty-box { margin-top: 2.5rem; border: 2px dashed var(--border); border-radius: var(--radius); background: var(--surface); padding: 2rem; text-align: center; }
+      .empty-box .t { font-size: 18px; font-weight: 700; }
+      .empty-box .d { margin-top: .5rem; font-size: 14px; line-height: 1.7; color: var(--dim); }
+      .wrong-item { padding: 1rem; }
+      .wrong-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: 12px; }
+      .wrong-meta .wc { font-weight: 700; color: var(--bad); }
+      .wrong-meta .date { color: var(--dim); }
+      .wrong-q { margin-top: .5rem; line-height: 1.7; }
+      .toggle-btn {
+        margin-top: .75rem; display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; gap: .375rem;
+        border-radius: 8px; border: 2px solid var(--border); background: var(--surface-alt); padding: .5rem .75rem; font-size: 14px; font-weight: 700;
+      }
+      .toggle-btn .chev { transition: transform .2s ease; }
+      .toggle-btn .chev.open { transform: rotate(180deg); }
+      .wrong-detail { margin-top: .75rem; }
+      .answer-box { border-radius: 12px; background: var(--surface-alt); padding: .875rem; }
+      .answer-line { display: flex; align-items: center; gap: .375rem; font-size: 14px; font-weight: 700; color: var(--good); }
+
+      /* Confetti */
+      .confetti-layer { pointer-events: none; position: fixed; inset: 0; z-index: 50; overflow: hidden; }
+      .confetti-piece { position: absolute; top: 0; }
+      .burst-layer { pointer-events: none; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      .burst-piece { position: absolute; }
+      @keyframes confetti-fall {
+        0% { transform: translateY(-4vh) rotate(0deg); opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateY(104vh) rotate(680deg); opacity: .4; }
+      }
+      @keyframes confetti-burst {
+        0% { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+        100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(.7); opacity: 0; }
+      }
+      @keyframes pop-in {
+        0% { transform: scale(.6); opacity: 0; }
+        60% { transform: scale(1.08); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      @keyframes float-up {
+        0% { transform: translateY(6px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      .animate-pop { animation: pop-in .35s ease-out both; }
+      .animate-rise { animation: float-up .3s ease-out both; }
+      @media (prefers-reduced-motion: reduce) {
+        .confetti-piece, .burst-piece { display: none; }
+        .animate-pop, .animate-rise { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="confetti-root"></div>
+    <main id="app"></main>
+
+    <script id="qdata" type="application/json">[{"id":1,"category":"発達障害の基礎知識","question":"次のうち、発達障害の主な3つの分類に含まれないものはどれか？","choices":["自閉スペクトラム症（ASD）","注意欠如・多動性障害（ADHD）","学習障害（LD）","愛着障害"],"answer":3,"explanation":"発達障害の主な3つの分類は、自閉スペクトラム症（ASD）、注意欠如・多動性障害（ADHD）、学習障害（LD）です。愛着障害は、養育者との関係の中で生じる情緒的な問題であり、発達障害の分類とは異なります。"},{"id":2,"category":"発達障害の基礎知識","question":"自閉スペクトラム症（ASD）の特性として、適切でないものは次のうちどれか？","choices":["対人関係を築くのが苦手","特定の物事への強いこだわり","冗談や比喩表現の理解が容易","感覚の過敏さまたは鈍麻さ"],"answer":2,"explanation":"ASDの特性として、言葉を文字通りに受け取ることが多く、冗談や比喩、皮肉といった抽象的な表現の理解が難しい場合があります。"},{"id":3,"category":"発達障害の基礎知識","question":"注意欠如・多動性障害（ADHD）の主な特性として、当てはまらないものはどれか？","choices":["忘れ物が多い","じっとしているのが苦手","計画を立てて行動するのが得意","注意を持続させることが難しい"],"answer":2,"explanation":"ADHDの特性には、実行機能の課題が含まれることが多く、計画を立てて順序よく行動することが苦手な場合があります。"},{"id":4,"category":"発達障害の基礎知識","question":"学習障害（LD）とは、知的発達に遅れはないが、特定の能力の習得に困難が生じる状態を指す。","choices":["〇","×"],"answer":0,"explanation":"学習障害（LD）は、全般的な知的発達に遅れはないものの、聞く、話す、読む、書く、計算する、推論するといった特定の能力の習得と使用に著しい困難を示す状態を指します。"},{"id":5,"category":"脳科学・心理学","question":"脳科学に基づいたアプローチにおいて、行動を習慣化させるためには、行動後すぐに脳を「快」の状態にすることが重要とされる。この時間はどのくらいか？","choices":["10秒以内","60秒以内","5分以内","30分以内"],"answer":1,"explanation":"脳科学に基づいたアプローチでは、行動の直後（60秒以内）に「快」の刺激（褒めるなど）を与えることで、その行動が強化され、習慣化しやすくなるとされています。"},{"id":6,"category":"脳科学・心理学","question":"子どもの自己肯定感を高めるために最も重要とされるのは、次のうちどれか？","choices":["常に褒め続けること","失敗をさせないこと","「できること」を増やし、感謝を伝えること","他の子どもと比較して優れている点を指摘すること"],"answer":2,"explanation":"自己肯定感は、単に褒められるだけでなく、自分自身で「できた」という達成感や、他者から感謝される経験を通じて育まれます。"},{"id":7,"category":"発達障害の基礎知識","question":"発達障害の二次障害として、適切でないものはどれか？","choices":["不登校","身体的な成長の遅れ","うつ病","引きこもり"],"answer":1,"explanation":"二次障害とは、発達障害の特性そのものではなく、周囲の無理解や不適切な対応などから生じる、うつ病、不安障害、不登校、引きこもりといった精神的・社会的な問題を指します。身体的な成長の遅れは、通常二次障害には含まれません。"},{"id":8,"category":"行動支援・コミュニケーション","question":"コミュニケーション能力は、訓練によって伸ばすことはできない。","choices":["〇","×"],"answer":1,"explanation":"コミュニケーション能力は、ソーシャルスキル・トレーニング（SST）などの適切な訓練によって、向上させることが可能です。"},{"id":9,"category":"資格・試験・制度","question":"児童発達支援士の学習では、専門用語を多用して、専門的な知識を深めることを主な目的としている。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士の学習では、専門家でなくても理解しやすいように、極力専門用語を避けて、実践的な知識やスキルを学ぶことを重視しています。"},{"id":10,"category":"脳科学・心理学","question":"しつけを成功に導くアプローチ法として、脳科学では「快」の経験を何回繰り返すことが重要とされているか？","choices":["約50回","約100回","約200回","約500回"],"answer":2,"explanation":"脳科学の研究によれば、ある行動が定着し、無意識にできるようになる（習慣化する）までには、約200回の繰り返しが必要とされています。"},{"id":11,"category":"発達障害の基礎知識","question":"発達障害の原因は、親の育て方やしつけにあると科学的に証明されている。","choices":["〇","×"],"answer":1,"explanation":"発達障害は、生まれつきの脳機能の障害であり、親の育て方や愛情不足が原因ではありません。"},{"id":12,"category":"感覚・環境と実践支援","question":"感覚の過敏さを持つ子どもに対して、適切な配慮は次のうちどれか？","choices":["大きな音や強い光を避ける","積極的に人混みに連れて行く","常に新しい服を着せる","好き嫌いなく何でも食べさせる"],"answer":0,"explanation":"感覚過敏のある子どもにとっては、特定の刺激が非常に不快に感じられるため、その刺激を避ける環境調整が必要です。"},{"id":13,"category":"行動支援・コミュニケーション","question":"「癇癪」を起こしている子どもへの対応として、まず優先すべきことは何か？","choices":["なぜ癇癪を起こしているのかを厳しく問い詰める","子どもと周囲の安全を確保する","無視して放置する","すぐに子どもの要求をすべて受け入れる"],"answer":1,"explanation":"癇癪を起こしている際は、子どもが興奮して自分や他者を傷つけたり、物を壊したりする可能性があるため、まずは安全を確保することが最優先です。"},{"id":14,"category":"資格・試験・制度","question":"児童発達支援士の試験は、マークシート形式の筆記試験である。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士の試験は、自宅などで受けられるオンライン形式です。"},{"id":15,"category":"発達障害の基礎知識","question":"ADHDの子どもは、集中力がないのではなく、注意をコントロールすることが難しいだけである。","choices":["〇","×"],"answer":0,"explanation":"ADHDの「不注意」は、意欲がないのではなく、多くの刺激の中から重要なものを選び出し、そこに注意を向け続けるという脳の機能的な課題が背景にあります。"},{"id":16,"category":"発達障害の基礎知識","question":"ASDの子どもが見せる「こだわり行動」は、本人にとってどのような意味を持つことが多いか？","choices":["他者への反抗","わがままな性格の表れ","安心感を得るための手段","周囲の気を引くための行動"],"answer":2,"explanation":"ASDの子どもにとって、いつもと同じ手順やパターンを繰り返す「こだわり行動」は、先の見通しを持つことにつながり、不安を和らげ、安心感を得るための重要な役割を果たしています。"},{"id":17,"category":"発達障害の基礎知識","question":"学習障害（LD）の一つである「ディスレクシア」とは、どのような困難さを示すか？","choices":["計算が苦手","文字の読み書きが苦手","人の話を聞き取るのが苦手","運動が苦手"],"answer":1,"explanation":"ディスレクシアは、学習障害の一種で、知的な遅れはないものの、文字の読み書きの能力に著しい困難がある状態を指します。"},{"id":18,"category":"行動支援・コミュニケーション","question":"子どもの行動を褒める際に、より効果的とされる方法は次のうちどれか？","choices":["「すごいね」「えらいね」と抽象的に褒める","結果だけでなく、努力した過程を具体的に褒める","他の子どもと比べて「一番だね」と褒める","ご褒美としてお菓子やおもちゃを必ず与える"],"answer":1,"explanation":"「頑張っていたね」「丁寧にできたね」のように、行動のプロセスを具体的に褒めることで、子どもは何を評価されたのかを理解しやすくなり、次への意欲につながります。"},{"id":19,"category":"資格・試験・制度","question":"発達障害の診断は、誰が行うことができるか？","choices":["学校の教師","児童発達支援士","医師","保護者"],"answer":2,"explanation":"発達障害の診断は、専門的な知識を持つ医師のみが行うことができる医療行為です。教師や支援士は診断を行うことはできません。"},{"id":20,"category":"発達障害の基礎知識","question":"「療育」とは、発達に課題のある子どもに対して、その子に合った方法で発達を促し、自立を支援する取り組みのことである。","choices":["〇","×"],"answer":0,"explanation":"療育は、障害のある子どもの発達を促し、日常生活や社会生活を円滑に送れるようにするための治療・教育的な支援の総称です。"},{"id":21,"category":"行動支援・コミュニケーション","question":"子どもが落ち着きなく動き回る場合、その背景にある可能性として考えられないものはどれか？","choices":["感覚的な刺激を求めている","不安やストレスを感じている","意図的に大人を困らせようとしている","体を動かすことで覚醒レベルを調整している"],"answer":2,"explanation":"子どもの行動には、感覚的な欲求や、不安・ストレスなど、何らかの理由があります。意図的に他者を困らせるためだけに行動することは稀で、その背景にあるニーズを理解しようとすることが重要です。"},{"id":22,"category":"資格・試験・制度","question":"児童発達支援士の資格は、一度取得すれば更新の必要はない。","choices":["〇","×"],"answer":0,"explanation":"児童発達支援士は民間資格であり、2025年10月現在、資格の更新制度は設けられていません。"},{"id":23,"category":"行動支援・コミュニケーション","question":"子どもとの信頼関係を築く上で、最も基本となる姿勢は次のうちどれか？","choices":["子どもの話を評価せずに傾聴する","常に正しい答えを教え、導く","子どもの間違いをすぐに指摘し、正す","大人としての権威を示す"],"answer":0,"explanation":"子どもの気持ちや考えを、良い・悪いと判断せずに、ありのまま受け止めて聴く「傾聴」の姿勢は、子どもが安心して自己表現できる信頼関係の土台となります。"},{"id":24,"category":"感覚・環境と実践支援","question":"発達障害のある子どもへの支援において、「合理的配慮」という考え方が重要である。","choices":["〇","×"],"answer":0,"explanation":"合理的配慮とは、障害のある人が障害のない人と同じように、教育や就業、その他社会生活の機会に参加できるよう、個々の状況に応じて提供される調整や変更のことです。"},{"id":25,"category":"行動支援・コミュニケーション","question":"次のうち、ソーシャルスキル・トレーニング（SST）で扱う内容として、適切でないものはどれか？","choices":["友達の作り方","感情のコントロール","問題解決のスキル","九九の暗唱"],"answer":3,"explanation":"ソーシャルスキル・トレーニング（SST）は、対人関係や社会生活に必要なスキルを学ぶ訓練です。九九の暗唱のような特定の学習内容を教えるものではありません。"},{"id":26,"category":"感覚・環境と実践支援","question":"「TEACCHプログラム」とは、主にどのような障害のある人々のために開発された支援プログラムか？","choices":["注意欠如・多動性障害（ADHD）","学習障害（LD）","自閉スペクトラム症（ASD）","ダウン症"],"answer":2,"explanation":"TEACCH （ Treatment and Education of Autistic and related Communication handicapped Children）は、ASDのある人々のために、米国ノースカロライナ大学で開発された、構造化を基本とする包括的な支援プログラムです。"},{"id":27,"category":"行動支援・コミュニケーション","question":"子どもの行動を分析する際に用いられる「ABC分析」の「B」が示すものは何か？","choices":["行動の直前の出来事（Antecedent）","行動そのもの（Behavior）","行動の直後の結果（Consequence）","行動の背景（Background）"],"answer":1,"explanation":"ABC分析は、A（Antecedent：先行条件）、B（Behavior:行動）、C（Consequence:結果）の3つの要素から行動を分析し、その行動がなぜ起きるのか、どうすれば望ましい行動に導けるのかを考えます。"},{"id":28,"category":"感覚・環境と実践支援","question":"感覚統合療法は、どのような困難を抱える子どもに有効とされるか？","choices":["視力や聴力の問題","複数の感覚情報をうまく整理・統合できない問題","特定の教科の学習の遅れ","友人関係のトラブル"],"answer":1,"explanation":"感覚統合療法は、脳が複数の感覚（触覚、固有覚、前庭覚など）からの情報を整理し、まとめるプロセス（感覚統合）に困難がある子どもに対して、遊びを通して感覚の発達を促すアプローチです。"},{"id":29,"category":"行動支援・コミュニケーション","question":"子どもが新しいスキルを習得する際に、少しずつヒントを減らしていく支援方法を何と呼ぶか？","choices":["フェイディング","シェイピング","モデリング","プロンプティング"],"answer":0,"explanation":"フェイディングは、最初は多くのヒント（プロンプト）を与えて行動を成功させ、徐々にそのヒントを減らしていくことで、最終的に自力で行動できるように導く支援技法です。"},{"id":30,"category":"資格・試験・制度","question":"発達障害のある子どもの就学先を検討する際に、相談できる専門機関として適切でないものはどれか？","choices":["市区町村の教育委員会","児童相談所","発達障害者支援センター","税務署"],"answer":3,"explanation":"就学に関する相談は、地域の教育委員会、児童相談所、発達障害者支援センターなどの教育・福祉・医療機関が担当します。税務署は税金の徴収などを行う機関であり、就学相談には関与しません。"},{"id":31,"category":"感覚・環境と実践支援","question":"「視覚的支援」は、言葉の理解が難しい子どもにとって有効な手段である。","choices":["〇","×"],"answer":0,"explanation":"絵カードや写真、シンボルなどの視覚的な情報は、言葉の理解が苦手な子どもにとって、活動の流れを理解したり、自分の意思を伝えたりするための有効な補助手段となります。"},{"id":32,"category":"感覚・環境と実践支援","question":"ペアレント・トレーニングの主な目的は何か？","choices":["子どもの学力を向上させること","保護者が子どもの行動に効果的に対応できるスキルを身につけること","保護者同士の交流を深めること","子どもの発達障害を完治させること"],"answer":1,"explanation":"ペアレント・トレーニングは、保護者が子どもの特性を理解し、行動理論に基づいて褒め方や指示の出し方などを学ぶことで、より良い親子関係を築き、子どもの望ましい行動を増やしていくことを目的とします。"},{"id":33,"category":"脳科学・心理学","question":"ADHDの治療薬として用いられることがある薬は、主に脳のどの神経伝達物質に作用するか？","choices":["セロトニン","ドーパミン","エンドルフィン","アセチルコリン"],"answer":1,"explanation":"ADHDの治療薬の多くは、脳内の神経伝達物質であるドーパミンやノルアドレナリンの働きを調整することで、不注意や多動性、衝動性といった症状の改善を図ります。"},{"id":34,"category":"発達障害の基礎知識","question":"ASDの子どもが、相手の気持ちを推測したり、場の空気を読んだりすることが苦手なのは、何の機能の障害が関係していると考えられているか？","choices":["実行機能","ワーキングメモリ","心の理論","中央性統合"],"answer":2,"explanation":"「心の理論」とは、他者にも自分とは異なる心（考え、意図、感情など）があることを理解し、それを推測する能力のことです。ASDのある人は、この機能に困難を抱えている場合があると考えられています。"},{"id":35,"category":"資格・試験・制度","question":"児童発達支援士の資格は、国家資格である。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士は、一般社団法人 人間力認定協会が認定する民間資格であり、国家資格ではありません。"},{"id":36,"category":"感覚・環境と実践支援","question":"「構造化」とは、時間や空間、活動などを分かりやすく整理し、見通しを持たせるための工夫である。","choices":["〇","×"],"answer":0,"explanation":"「構造化」は、ASDのある人への支援の基本となる考え方で、物理的な環境や時間の使い方、活動の手順などを視覚的に分かりやすくすることで、見通しを持たせ、安心して活動に取り組めるようにする工夫です。"},{"id":37,"category":"発達障害の基礎知識","question":"学習障害（LD）のある子どもは、努力が足りないために学習が遅れる。","choices":["〇","×"],"answer":1,"explanation":"学習障害（LD）は、本人の努力不足や怠慢が原因ではなく、脳機能の何らかの偏りによって、特定の学習スキル（読み、書き、計算など）の習得が困難になる状態です。"},{"id":38,"category":"行動支援・コミュニケーション","question":"子どもが不適切な行動をした際に、その行動をやめさせるための効果的な方法として、「タイムアウト」がある。","choices":["〇","×"],"answer":0,"explanation":"「タイムアウト」は、子どもが不適切な行動をした際に、一定時間、刺激の少ない静かな場所に移動させることで、クールダウンを促し、行動を静めるための方法の一つです。ただし、罰としてではなく、落ち着くための時間として用いることが重要です。"},{"id":39,"category":"感覚・環境と実践支援","question":"児童発達支援の現場で、個別支援計画を作成する際の中心となるべきは誰か？","choices":["支援者","保護者","子ども本人","医師"],"answer":2,"explanation":"支援計画は、支援者や保護者が一方的に決めるのではなく、子ども本人の意向や願い、興味・関心を中心に据えて作成されるべきです（本人中心の支援）。"},{"id":40,"category":"資格・試験・制度","question":"児童発達支援士の認定講座を受講しなくても、試験に合格すれば資格は取得できる。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士の資格を取得するためには、認定講座を受講し、学習を修了した上で、オンライン試験に合格する必要があります。"},{"id":41,"category":"発達障害の基礎知識","question":"発達性協調運動障害（DCD）とは、どのような困難さを示すか？","choices":["言葉の発音が不明瞭","読み書きが困難","極端な不器用さ","計算が苦手"],"answer":2,"explanation":"発達性協調運動障害（DCD）は、ボール投げやハサミの使用、書字など、協調運動を必要とする動作が、年齢や知能に比べて著しく不器用で、日常生活に支障をきたす状態を指します。"},{"id":42,"category":"感覚・環境と実践支援","question":"子どもの遊びには、発達を促す重要な役割がある。","choices":["〇","×"],"answer":0,"explanation":"遊びは、子どもにとって単なる楽しみであるだけでなく、身体能力、認知能力、社会性、感情のコントロールなど、心身の発達のあらゆる側面に不可欠な役割を果たします。"},{"id":43,"category":"行動支援・コミュニケーション","question":"応用行動分析（ABA）の基本的な考え方として、適切なものはどれか？","choices":["行動は、その前後の環境によって影響を受ける","行動の原因は、個人の内的な感情にある","問題行動は、罰を与えることで最も効果的に減少する","すべての行動は、遺伝によって決定される"],"answer":0,"explanation":"応用行動分析（ABA）は、行動を「本人の内面」ではなく、「環境との相互作用」として捉えます。行動の前後（先行条件と結果）を分析し、環境を調整することで、望ましい行動を増やし、問題行動を減らすことを目指します。"},{"id":44,"category":"行動支援・コミュニケーション","question":"「トークンエコノミー」とは、望ましい行動に対してトークン（代用貨幣）を与え、それを集めることで報酬と交換できるシステムである。","choices":["〇","×"],"answer":0,"explanation":"トークンエコノミーは、応用行動分析（ABA）の技法の一つで、望ましい行動をしたらすぐにトークン（シールやスタンプなど）を与え、それが貯まると好きなものや活動と交換できるという仕組みで、行動の動機づけを高めます。"},{"id":45,"category":"感覚・環境と実践支援","question":"ASDの子どもが、特定の対象に強い興味を持つことを、どのように支援に活かすのが望ましいか？","choices":["興味の対象を強制的に取り上げる","興味の対象を学習の動機づけとして活用する","その興味は異常なものだと教える","他の子どもと同じものに興味を持つように指導する"],"answer":1,"explanation":"ASDの子どもの強い興味は、新しいスキルを学んだり、難しい課題に取り組んだりする際の強力な動機づけ（モチベーション）になります。その興味を入り口として、学習活動につなげていくことが有効な支援となります。"},{"id":46,"category":"資格・試験・制度","question":"児童発達支援士の試験の合格基準は何問以上の正解か？","choices":["30問","35問","40問","45問"],"answer":1,"explanation":"児童発達支援士の試験は50問中35問以上（正答率70%以上）の正解で合格となります。"},{"id":47,"category":"脳科学・心理学","question":"「ワーキングメモリ」とは、どのような記憶の機能を指すか？","choices":["過去の出来事に関する長期的な記憶","体で覚える手続き記憶","情報を一時的に保持し、同時に処理する能力","知識や概念に関する意味記憶"],"answer":2,"explanation":"ワーキングメモリは、会話を理解したり、計算をしたり、文章を読んだりする際に、必要な情報を一時的に頭の中に留めながら、他の情報を処理するための重要な認知機能です。"},{"id":48,"category":"感覚・環境と実践支援","question":"発達障害のある子どもへの支援では、その子の「できないこと」に注目するよりも、「できること」を伸ばす視点が重要である。","choices":["〇","×"],"answer":0,"explanation":"支援の際には、子どもの欠点やできないことばかりに目を向けるのではなく、その子の持つ強みや得意なこと（ストレングス）を見つけ、それを伸ばしていくというポジティブな視点が、自己肯定感を育む上で非常に重要です。"},{"id":49,"category":"脳科学・心理学","question":"「実行機能」に含まれないものは次のうちどれか？","choices":["計画を立てる","行動を抑制する","感情を認識する","柔軟に思考を切り替える"],"answer":2,"explanation":"実行機能は、目標志向的な行動を自己管理・調整するための高次な認知機能群を指し、計画、抑制、柔軟な思考の切り替えなどが含まれます。感情の認識は、社会性や心の理論と関連が深い機能です。"},{"id":50,"category":"脳科学・心理学","question":"児童発達支援士の学習で推奨されている、脳科学に基づいたアプローチは、誰でもすぐに実践できることを目指している。","choices":["〇","×"],"answer":0,"explanation":"児童発達支援士の学習で紹介されるアプローチは、専門家でなくても日常生活の中で実践できるよう、分かりやすく、具体的な方法で示されています。"},{"id":51,"category":"資格・試験・制度","question":"就学前の発達障害のある子どもが利用できる支援機関として、最も代表的なものはどれか？","choices":["児童養護施設","児童発達支援センター","学童保育","フリースクール"],"answer":1,"explanation":"児童発達支援センターは、児童福祉法に基づく施設で、就学前の障害のある子どもを対象に、日常生活における基本的な動作の指導や知識技能の付与、集団生活への適応訓練などを行う、地域の中核的な療育機関です。"},{"id":52,"category":"感覚・環境と実践支援","question":"感覚刺激を求める行動（感覚探求）が見られる子どもに対して、適切な対応はどれか？","choices":["行動を完全に禁止する","安全で社会的に認められる形で感覚欲求を満たす機会を提供する","無視し続ける","罰を与える"],"answer":1,"explanation":"感覚探求行動は、無理にやめさせようとするのではなく、トランポリンで跳ねる、重いものを持つなど、より安全で適切な代替行動を用意することで、子どもの感覚的なニーズを満たすことが重要です。"},{"id":53,"category":"感覚・環境と実践支援","question":"子どもの行動を観察し、記録する際に最も重要なことは何か？","choices":["観察者の主観や解釈を交えて記録する","行動を客観的かつ具体的に記録する","ポジティブな行動のみを記録する","問題行動が起きた時だけ記録する"],"answer":1,"explanation":"行動観察記録は、支援の手がかりを得るための客観的なデータです。「～しようとしていた」のような解釈ではなく、「～を指さした」「～と言った」のように、誰が見ても同じように理解できる事実を具体的に記述することが求められます。"},{"id":54,"category":"行動支援・コミュニケーション","question":"「般化」とは、特定の場面で学習した行動が、他の場面でも見られるようになることである。","choices":["〇","×"],"answer":0,"explanation":"支援の最終的な目標は、療育の場など特定の場面だけでなく、家庭や学校、地域社会など、様々な実生活の場面で学習したスキルが使えるようになること（般化）です。"},{"id":55,"category":"感覚・環境と実践支援","question":"次のうち、子どもの「プレイセラピー（遊戯療法）」の主な目的として適切でないものはどれか？","choices":["感情や葛藤の表現を助ける","コミュニケーション能力を向上させる","特定の学問的スキルを教える","ストレスを軽減し、カタルシス（心の浄化）を促す"],"answer":2,"explanation":"プレイセラピーは、子どもが遊びという自然な表現方法を通して、言葉ではうまく表現できない感情や葛藤を表現し、セラピストとの安定した関係の中で、心の健康を取り戻していくことを目的とする心理療法です。特定の教科を教えるものではありません。"},{"id":56,"category":"発達障害の基礎知識","question":"ADHDの子どもは、しばしば衝動的に行動することがある。","choices":["〇","×"],"answer":0,"explanation":"衝動性はADHDの主要な特性の一つで、結果をよく考えずに行動してしまう、順番を待てない、他人の会話に割り込んでしまう、といった形で現れます。"},{"id":57,"category":"発達障害の基礎知識","question":"ASDの子どもが、一人遊びを好む傾向があるのはなぜか？","choices":["他の子どもが嫌いだから","自分のペースで、予測可能な活動に安心感を得られるから","協調性がないから","親からそうするように言われているから"],"answer":1,"explanation":"ASDの子どもは、他者との相互作用や予測不能な状況に強いストレスを感じることがあります。一人遊びは、他者に合わせる必要がなく、自分の興味やペースで進められるため、安心できる時間となります。"},{"id":58,"category":"感覚・環境と実践支援","question":"LDのある子どもへの学習支援として、マルチセンサリー（多感覚）アプローチが有効な場合がある。","choices":["〇","×"],"answer":0,"explanation":"マルチセンサリーアプローチは、視覚、聴覚、触覚、運動感覚など、複数の感覚を同時に使って学習する方法です。例えば、文字を指でなぞりながら声に出して読むなど、LDのある子どもの学習を助ける有効な手段とされています。"},{"id":59,"category":"行動支援・コミュニケーション","question":"「ソーシャルストーリー」とは、特定の社会的な状況や適切な行動について、肯定的かつ分かりやすい言葉で記述した短い物語である。","choices":["〇","×"],"answer":0,"explanation":"ソーシャルストーリーは、ASDのあるキャロル・グレイ氏によって開発された支援ツールです。子どもがこれから経験する状況や、そこで期待される行動を、本人の視点に立って具体的に記述することで、見通しを持たせ、不安を軽減します。"},{"id":60,"category":"資格・試験・制度","question":"児童発達支援士の学習教材には、テキストやワークブックの他に、何を視聴する形式が含まれているか？","choices":["アニメーション","映画","動画","ドキュメンタリー番組"],"answer":2,"explanation":"児童発達支援士の講座では、テキストとワークブックによる学習に加え、要点を解説した動画を視聴することで、理解を深めることができます。"},{"id":61,"category":"脳科学・心理学","question":"子どもが特定の活動を避ける「回避行動」の背景には、どのような感情が隠れていることが多いか？","choices":["喜び","怒り","不安や恐怖","興味"],"answer":2,"explanation":"子どもが特定の活動や場所を避ける「回避行動」の背景には、「失敗したらどうしよう」「うまくできなかったら恥ずかしい」といった不安や恐怖の感情が隠れていることが多くあります。"},{"id":62,"category":"発達障害の基礎知識","question":"発達障害の特性は、生涯にわたって完全に消失することは稀だが、適切な支援によって行動上の困難は軽減できる。","choices":["〇","×"],"answer":0,"explanation":"発達障害は生まれつきの脳機能の特性であり、完全に「治る」ものではありません。しかし、幼少期からの適切な療育や環境調整によって、社会生活上の困難を軽減し、その人らしい豊かな人生を送ることは十分に可能です。"},{"id":63,"category":"行動支援・コミュニケーション","question":"「プロンプト」とは、子どもが正しい反応をするのを助けるための、どのようなものか？","choices":["罰","報酬","手がかりやヒント","無視"],"answer":2,"explanation":"プロンプト（prompt）は、子どもが課題を達成したり、適切な行動をとったりするのを助けるための補助的な手がかりです。身体的な誘導、言語的な指示、視覚的なヒントなど、様々な種類があります。"},{"id":64,"category":"感覚・環境と実践支援","question":"児童発達支援において、家族との連携（家族支援）は重要ではない。","choices":["〇","×"],"answer":1,"explanation":"子どもは多くの時間を家庭で過ごすため、支援の効果を日常生活に広げていく（般化させる）ためには、保護者との密な情報共有や連携が不可欠です。家族支援は、児童発達支援の重要な柱の一つです。"},{"id":65,"category":"発達障害の基礎知識","question":"ASDの特性の一つである「常同行動」とは、どのような行動を指すか？","choices":["新しいことに次々と挑戦する行動","目的なく動き回る行動","同じ行動を何度も繰り返す行動","他者の行動を真似する行動"],"answer":2,"explanation":"常同行動（または自己刺激行動）は、体を揺らす、手をひらひらさせる、同じ言葉を繰り返すなど、一見無目的に見える反復的な行動です。不安を軽減したり、感覚的な刺激を得たりする目的があると考えられています。"},{"id":66,"category":"資格・試験・制度","question":"児童発達支援士の試験では、前の問題に戻って解答を修正することはできない。","choices":["〇","×"],"answer":0,"explanation":"児童発達支援士のオンライン試験システムでは、一度解答して次の問題に進むと、前の問題に戻って見直したり、修正したりすることはできない仕様になっています。"},{"id":67,"category":"行動支援・コミュニケーション","question":"子どもがパニック状態に陥った際の対応として、最も適切なものはどれか？","choices":["静かで落ち着ける場所に移動させ、安心させる","なぜパニックになったのかを論理的に説明する","大声で叱りつけて行動を止めさせる","その場から立ち去り、一人にさせる"],"answer":0,"explanation":"パニック状態にある子どもに対しては、説得や叱責は逆効果です。まずは、刺激の少ない安全な場所で、本人が落ち着きを取り戻すのを静かに待つことが最も重要です。"},{"id":68,"category":"脳科学・心理学","question":"「愛着（アタッチメント）」とは、子どもが特定の養育者との間に形成する、情緒的な結びつきのことである。","choices":["〇","×"],"answer":0,"explanation":"愛着は、イギリスの精神科医ジョン・ボウルビィによって提唱された概念で、乳幼児期に特定の養育者との間に形成される情緒的な絆を指します。その後の対人関係や精神的な安定の基礎となると考えられています。"},{"id":69,"category":"感覚・環境と実践支援","question":"次のうち、インクルーシブ教育の考え方として最も適切なものはどれか？","choices":["障害のある子どもは、特別な学校で教育を受けるべきだ","すべての子どもが、同じ教室で共に学ぶことを基本とする","障害のない子どもを優先的に教育する","障害のある子どもとない子どもを、完全に分離して教育する"],"answer":1,"explanation":"インクルーシブ教育は、障害の有無やその他の違いにかかわらず、すべての子どもが地域の学校で共に学ぶことを通して、多様性を尊重する社会を築くことを目指す考え方です。"},{"id":70,"category":"資格・試験・制度","question":"児童発達支援士の資格取得の目的として、協会が最も重視していることは何か？","choices":["受講者の就職活動を有利にすること","発達障がい児支援の輪を広げること","協会の収益を上げること","資格の知名度を上げること"],"answer":1,"explanation":"児童発達支援士を認定する人間力認定協会の理念は、「発達障がい児支援の輪を拡げること」です。資格取得を通じて、多くの人が正しい知識と支援スキルを身につけることを目的としています。"},{"id":71,"category":"感覚・環境と実践支援","question":"「自己選択」の機会を子どもに与えることは、自立心や自己肯定感を育む上で重要である。","choices":["〇","×"],"answer":0,"explanation":"「どちらの服を着る？」「どの順番で宿題をする？」など、子ども自身が選べる場面を作ることは、自己決定の経験となり、自律性や主体性を育む上で非常に重要です。"},{"id":72,"category":"発達障害の基礎知識","question":"ADHDの子どもは、好きなことに対しては驚くほどの集中力を発揮することがある。これを何と呼ぶか？","choices":["過集中","注意散漫","多動性","衝動性"],"answer":0,"explanation":"過集中は、ADHDの特性の一つで、興味のあることに対して、周りのことが目に入らなくなるほど、並外れた集中力を発揮する状態を指します。これは、注意の切り替えが難しいという特性の裏返しでもあります。"},{"id":73,"category":"行動支援・コミュニケーション","question":"ASDの子どもが、比喩や皮肉を文字通りに受け取ってしまうことがあるのはなぜか？","choices":["ユーモアのセンスがないから","言葉の裏にある意図を読み取るのが苦手だから","わざとそうしているから","聴覚に問題があるから"],"answer":1,"explanation":"ASDのある人は、言葉を文字通りに解釈する傾向があり、文脈や相手の表情、声のトーンなどから、言葉の裏に隠された本当の意図（言外の意味）を推測することが難しい場合があります。"},{"id":74,"category":"感覚・環境と実践支援","question":"児童発達支援の分野では、多職種連携が重要となる。","choices":["〇","×"],"answer":0,"explanation":"子どもの発達支援には、医療、福祉、教育、心理など、様々な専門分野からのアプローチが必要です。そのため、医師、保育士、教師、心理士、セラピストなどがそれぞれの専門性を活かし、連携・協力して支援にあたることが不可欠です。"},{"id":75,"category":"行動支援・コミュニケーション","question":"「モデリング」とは、望ましい行動を大人が手本としてやって見せる支援技法である。","choices":["〇","×"],"answer":0,"explanation":"モデリングは、応用行動分析（ABA）や社会学習理論で用いられる技法で、子どもに新しい行動を教える際に、大人が実際にやって見せる（モデルを示す）ことで、子どもがそれを観察し、模倣することを促します。"},{"id":76,"category":"脳科学・心理学","question":"児童発達支援士の学習において、子どもの「自己肯定感」を高めることが重要視されている。","choices":["〇","×"],"answer":0,"explanation":"児童発達支援士の学習では、子どもの健全な心の成長の土台となる自己肯定感を育むことを、支援の重要な柱の一つとして位置づけています。"},{"id":77,"category":"感覚・環境と実践支援","question":"感覚防衛反応が強い子どもは、特定の触覚や音、光などに対して過剰な不快感を示すことがある。","choices":["〇","×"],"answer":0,"explanation":"感覚防衛反応は、特定の感覚刺激に対して脳が過剰に反応し、危険を感じてしまう状態です。本人にとっては非常に苦痛であり、わがままや偏食と誤解されないような配慮が必要です。"},{"id":78,"category":"行動支援・コミュニケーション","question":"「チェイニング」とは、一連の複雑な行動を小さなステップに分解して、順序立てて教えていく方法である。","choices":["〇","×"],"answer":0,"explanation":"チェイニング（連鎖化）は、歯磨きや着替えなど、複数のステップから成る一連の行動を教える際に有効な技法です。前から順に教えていく方法（順行連鎖）と、最後から教えていく方法（逆行連鎖）があります。"},{"id":79,"category":"行動支援・コミュニケーション","question":"発達障害のある子どもの中には、表情や身振りから相手の感情を読み取ることが苦手な子がいる。","choices":["〇","×"],"answer":0,"explanation":"これは「心の理論」の課題と関連しており、非言語的なコミュニケーション（表情、視線、ジェスチャーなど）から相手の意図や感情を読み取ることが苦手な場合があります。"},{"id":80,"category":"資格・試験・制度","question":"児童発達支援士の資格は、主にどのようなアプローチに基づいているか？","choices":["薬物療法と外科手術","脳科学と心理学","伝統的な精神分析","スピリチュアルヒーリング"],"answer":1,"explanation":"児童発達支援士の資格は、最新の脳科学や心理学の研究成果に基づいた、科学的根拠のあるアプローチを学ぶことを特徴としています。"},{"id":81,"category":"感覚・環境と実践支援","question":"「スケジュール（絵カードなど）」を提示する目的として、適切でないものはどれか？","choices":["活動の見通しを持たせ、不安を軽減する","次の活動への切り替えをスムーズにする","子どもの記憶力を試す","言葉の理解を補助する"],"answer":2,"explanation":"スケジュールは、記憶の負担を減らし、見通しを持たせることで子どもを安心させるための支援ツールです。記憶力を試すためのものではありません。"},{"id":82,"category":"発達障害の基礎知識","question":"LDの「ディスカリキュリア」とは、どのような困難さを示すか？","choices":["読み書きの困難","算数・計算の困難","書字の困難","推論の困難"],"answer":1,"explanation":"ディスカリキュリアは、学習障害の一種で、数の概念の理解や、計算、推論など、算数に関連する能力に著しい困難がある状態を指します。"},{"id":83,"category":"行動支援・コミュニケーション","question":"子どもが問題行動を起こしたとき、その行動だけに注目するのではなく、その行動が持つ「機能（目的）」を考えることが重要である。","choices":["〇","×"],"answer":0,"explanation":"応用行動分析（ABA）では、すべての行動には何らかの機能（目的）があると考えます。例えば、注目を得たい、嫌なことから逃れたい、感覚的な刺激が欲しいなど、その背景を理解することが支援の第一歩となります。"},{"id":84,"category":"資格・試験・制度","question":"児童発達支援士の試験は、年に1回、決められた日に実施される。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士の試験は、認定講座の学習を進め、自分のタイミングでいつでもオンラインで受験することが可能です。"},{"id":85,"category":"感覚・環境と実践支援","question":"「クールダウン」のための場所や時間を設定することは、感情のコントロールが苦手な子どもにとって有効な支援となりうる。","choices":["〇","×"],"answer":0,"explanation":"興奮したり、感情的になったりしたときに、一人になれる静かで安全な場所（クールダウン・スペース）を用意しておくことは、子どもが自分で気持ちを落ち着けるスキルを学ぶ助けになります。"},{"id":86,"category":"発達障害の基礎知識","question":"ASDの子どもが示す「エコラリア（反響言語）」とは、どのような現象か？","choices":["独り言を言う","相手の言った言葉をそのまま繰り返す","新しい言葉を作り出す","小さな声で話す"],"answer":1,"explanation":"エコラリアは、ASDのある子どもによく見られる特性で、コミュニケーションの手段、思考の整理、安心感を得るためなど、様々な機能があると考えられています。"},{"id":87,"category":"感覚・環境と実践支援","question":"児童発達支援の目標は、すべての子どもを「定型発達」に近づけることである。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援の目標は、子どもを無理やり「普通」にすることではありません。その子の特性を個性として尊重し、持っている力を最大限に伸ばし、社会の中で自分らしく生きていくことを支援することです。"},{"id":88,"category":"資格・試験・制度","question":"児童発達支援士の認定団体は、次のうちどれか？","choices":["厚生労働省","文部科学省","一般社団法人 人間力認定協会","日本心理学会"],"answer":2,"explanation":"児童発達支援士は、一般社団法人 人間力認定協会が講座の運営と資格の認定を行っています。"},{"id":89,"category":"感覚・環境と実践支援","question":"「選択肢を提示する」という支援は、子どもが自分で決める経験を促し、パニックを防ぐ効果も期待できる。","choices":["〇","×"],"answer":0,"explanation":"自分で選ぶという経験は、自己効力感を高めます。また、「AかBか」のように具体的な選択肢を示すことで、どうしていいか分からずに混乱するのを防ぐことができます。"},{"id":90,"category":"資格・試験・制度","question":"児童発達支援士の学習では、ケーススタディを通して、実践的な対応方法を学ぶ。","choices":["〇","×"],"answer":0,"explanation":"児童発達支援士の学習では、具体的な事例（ケーススタディ）を通して、様々な状況でどのように対応すればよいかを学ぶことで、実践力を養います。"},{"id":91,"category":"発達障害の基礎知識","question":"ADHDの特性である「不注意」は、本人のやる気や努力の不足が原因である。","choices":["〇","×"],"answer":1,"explanation":"ADHDの不注意は、脳の機能的な特性によるものであり、本人の性格や意欲の問題ではありません。その特性を理解した上での環境調整や支援が必要です。"},{"id":92,"category":"行動支援・コミュニケーション","question":"「肯定的な言葉で指示を出す」ことは、子どもの行動を促す上で効果的である。（例：「走らない」ではなく「歩こうね」）","choices":["〇","×"],"answer":0,"explanation":"人間の脳は、否定的な指示（「～するな」）を理解しにくい性質があります。「～しよう」という肯定的な言葉で、望ましい行動を具体的に伝える方が、子どもは行動に移しやすくなります。"},{"id":93,"category":"発達障害の基礎知識","question":"発達障害は、成長とともに自然に治癒するものである。","choices":["〇","×"],"answer":1,"explanation":"発達障害は生まれつきの脳機能の特性であり、病気ではないため「治癒」するという概念は当てはまりません。ただし、適切な支援や療育によって、困難を軽減し、社会適応力を高めることは可能です。"},{"id":94,"category":"資格・試験・制度","question":"児童発達支援士の試験の合格率は、約50%である。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士の公式サイトによると、合格率は約90%と高く、教材の内容をしっかり学習すれば、十分に合格を目指せる試験です。"},{"id":95,"category":"感覚・環境と実践支援","question":"「こだわり」は、子どもの世界を豊かにする可能性も秘めているため、一概に否定すべきではない。","choices":["〇","×"],"answer":0,"explanation":"「こだわり」は、時に生活上の困難さを生むこともありますが、一方で、特定の分野への深い知識や集中力につながることもあります。その子の強みとして捉え、ポジティブに活かす視点も重要です。"},{"id":96,"category":"資格・試験・制度","question":"児童発達支援士の学習期間の目安は、どのくらいか？","choices":["約1週間","20～30時間程度","約半年","1年以上"],"answer":1,"explanation":"公式サイトによると、児童発達支援士の講座修了までの学習時間の目安は、20～30時間程度とされています。"},{"id":97,"category":"感覚・環境と実践支援","question":"子どもが失敗したときに、それを責めるのではなく、どうすれば次はうまくいくかを一緒に考える姿勢が重要である。","choices":["〇","×"],"answer":0,"explanation":"失敗は学びの機会です。失敗を責めるのではなく、原因を一緒に考え、次への挑戦を応援する関わりが、子どもの挑戦する意欲やレジリエンス（回復力）を育みます。"},{"id":98,"category":"資格・試験・制度","question":"児童発達支援士の資格は、海外でも通用する国際資格である。","choices":["〇","×"],"answer":1,"explanation":"児童発達支援士は、一般社団法人 人間力認定協会が認定する日本の民間資格であり、国際的に通用する資格ではありません。"},{"id":99,"category":"感覚・環境と実践支援","question":"子どもの「良いところ」や「できていること」に注目し、それを本人に伝えることは、自己肯定感を育む上で大切である。","choices":["〇","×"],"answer":0,"explanation":"ポジティブな側面に光を当て、それを言葉にして伝えることは、子どもの自己認識を肯定的なものにし、自信を育むための基本です。"},{"id":100,"category":"感覚・環境と実践支援","question":"児童発達支援士として最も大切なことは、子ども一人ひとりの特性を理解し、その子に合った支援を考える姿勢である。","choices":["〇","×"],"answer":0,"explanation":"支援のテクニックや知識も重要ですが、それ以上に、目の前の子どもをありのままに受け入れ、その子にとっての最善は何かを考え続ける姿勢が、すべての支援の根幹となります。"}]</script>
+    <script id="aidata" type="application/json">{"1":{"plain":"発達障害の代表格はASD・ADHD・LDの3つで、愛着障害はこのグループには入りません。愛着障害は養育者との関係の中で生じる心の問題です。","example":"保護者面談で「うちの子は愛着の問題ですか、発達障害ですか」と聞かれたとき、成り立ちが違う別の課題として分けて考える場面です。","trap":"ASD・ADHD・LDはいずれも生まれつきの脳機能の特性です。「障害」と付く愛着障害だけ仲間に見えますが、原因も分類も異なるため、これが「含まれないもの」になります。","mnemonic":"3本柱は A・A・L（ASD・ADHD・LD）、愛着は別枠"},"2":{"plain":"ASDの子は言葉をそのまま受け取ることが多く、冗談やたとえ話はむしろ苦手です。「理解が容易」は逆です。","example":"「お腹がぺこぺこだね」と言ったらお腹を押さえて心配そうにする子に、具体的な言葉で言い直す場面です。","trap":"対人関係の苦手さ、強いこだわり、感覚の過敏・鈍麻はすべてASDでよく見られる特性です。正解の選択肢だけ特性と反対のことを言っています。","mnemonic":"ASDは言葉はストレート、冗談は苦手"},"3":{"plain":"ADHDの子は段取りを組んで順番に進めるのが苦手なことが多いです。「計画が得意」は当てはまりません。","example":"朝の支度でランドセル・水筒・上履きを順に準備できず途中で止まってしまう子に、チェック表で順番を見える化する場面です。","trap":"忘れ物が多い、じっとしていられない、注意が続きにくい、はどれもADHDの代表的な姿です。得意・不得意が逆になっている選択肢が答えです。","mnemonic":"ADHDは段取りが苦手、だから見える化で支援"},"4":{"plain":"LDは頭の働き全体が遅れているのではなく、読み・書き・計算など特定の学びだけがぐっと難しい状態です。だからこの文は〇です。","example":"会話は年齢相応にできるのに、音読だけ極端につまずく子に、知的発達ではなく読みの困難として支援を考える場面です。","trap":"「知的発達に遅れはない」がLDの決め手です。全体的な遅れがある場合は知的障害など別の枠組みで考えるため、ここを×と誤解しないことがポイントです。","mnemonic":"LDは全体は普通、苦手はピンポイント"},"5":{"plain":"良い行動は、直後すぐ（60秒以内）に褒めて「気持ちいい」と結びつけるほど身につきやすくなります。","example":"片付けができた直後に間を置かず「自分で片付けられたね」と笑顔で伝え、行動と嬉しさを結びつける場面です。","trap":"5分や30分では行動と褒めのつながりが薄れてしまいます。10秒は短すぎる選択肢で、正解は「1分＝60秒以内」です。","mnemonic":"褒めは60秒、1分以内にすぐ"},"6":{"plain":"自分で「できた」が増えて、周りから「ありがとう」と言われる経験が、自信の土台になります。","example":"配膳のお手伝いができた子に「助かったよ、ありがとう」と具体的に伝え、役割と感謝を結びつける場面です。","trap":"褒め続けや失敗させない関わりだけでは「自分でできた」実感は育ちません。他児との比較は逆に自信を下げやすいため不正解です。","mnemonic":"自信は「できた」＋「ありがとう」"},"7":{"plain":"二次障害は、本来の特性そのものではなく、周りの理解不足などから後から生じる心や生活の困りごとです。体の成長の遅れは入りません。","example":"特性を叱られ続けて園に行けなくなった子のように、不登校や気分の落ち込みが二次的に起きる場面です。","trap":"不登校・うつ・引きこもりはどれも二次障害の例です。「身体的な成長の遅れ」は発達そのものの話で、二次障害の定義から外れます。","mnemonic":"二次障害は心と生活、体格は別"},"8":{"plain":"あいさつや気持ちの伝え方など、人との関わり方は練習で伸ばせます。だから「伸ばせない」は×です。","example":"ロールプレイで「貸して」の言い方を繰り返し練習し、実際の自由遊びで使えるようになる場面です。","trap":"逆の「訓練で伸ばせる」が正しく、根拠がSST（ソーシャルスキル・トレーニング）です。生まれつき固定で変えられない、という思い込みが引っかけです。","mnemonic":"関わり方は練習できる、SSTで伸びる"},"9":{"plain":"この資格の学びは、専門用語を並べるためではなく、誰でも現場で使える分かりやすい知識を身につけるためのものです。だから文は×です。","example":"保護者にもそのまま伝えられる平易な言葉で支援方法を学び、家庭と園で同じ関わりをそろえる場面です。","trap":"「専門用語を多用」「専門的な知識が主目的」という言い回しが逆です。この資格は実践の分かりやすさを重視します。","mnemonic":"専門用語は少なく、実践は分かりやすく"},"10":{"plain":"良い行動を習慣にするには、「快」の経験を約200回繰り返すことが目安とされます。1回や数回では定着しません。","example":"毎日の着替えや手洗いを褒めながら何か月も繰り返し、声かけなしでも自分でできるようになる過程です。","trap":"50回・100回ではまだ定着の目安に届かず、500回は多すぎる選択肢です。数字問題は「200回」を正確に押さえます。","mnemonic":"習慣化は200回、に（2）・まる（0）・まる（0）"},"11":{"plain":"発達障害は生まれつきの脳の働き方の違いで、親の育て方や愛情のせいではありません。だから文は×です。","example":"「私の育て方が悪かったのでは」と悩む保護者に、原因は育て方ではないと丁寧に伝え、支援に一緒に取り組む場面です。","trap":"逆の「育て方が原因」は昔の誤解です。科学的には否定されているため、証明されているとする文は誤りになります。","mnemonic":"原因は育て方じゃない、生まれつきの脳の特性"},"12":{"plain":"音や光が人一倍つらく感じる子には、その刺激自体を減らしてあげるのが基本の配慮です。","example":"運動会のピストル音が苦手な子にイヤーマフを用意したり、蛍光灯のまぶしい席を避けたりする場面です。","trap":"人混みに連れて行く、新しい服を着せる、何でも食べさせる、はいずれも苦手な刺激を増やす方向で逆です。配慮は「刺激を避ける」が正解です。","mnemonic":"過敏な子には刺激を減らす、避けるが配慮"},"13":{"plain":"癇癪の最中は理由を聞くより先に、本人と周りがケガをしないよう安全を守ることが最優先です。","example":"おもちゃを投げそうになったら周りの子を離し、危険な物を遠ざけてから落ち着くのを待つ場面です。","trap":"問い詰める、放置する、要求を全部のむ、はいずれも安全確保の前では後回しです。落ち着いてから理由や対応を考えます。","mnemonic":"癇癪対応はまず安全、それから理由"},"14":{"plain":"この試験は会場でマークシートを塗る形式ではなく、自宅などから受けられるオンライン試験です。だから文は×です。","example":"講座の学習を終えたら、決められた会場に行かず自宅のパソコンで受験する流れです。","trap":"「マークシート形式の筆記試験」は従来型の試験のイメージで引っかけです。形式はオンライン、とセットで覚えます。","mnemonic":"試験はオンライン、自宅で受験"},"15":{"plain":"ADHDの子は集中する力がないのではなく、必要なものに注意を向け続けたり切り替えたりする調整が難しいのです。だから〇です。","example":"ざわざわした教室では課題に集中できない子が、静かな個別スペースでは最後まで取り組める場面です。","trap":"逆の「やる気や集中力そのものがない」は誤解です。問題は注意の「コントロール」の方にある、という言い換えがポイントです。","mnemonic":"ないのは集中力じゃない、難しいのはコントロール"},"16":{"plain":"こだわり行動はわがままではなく、いつも通りであることで見通しが立ち、不安が和らぐための安心の手段です。","example":"登園後に決まった順番で荷物を置くことで落ち着いて活動に入れる子に、その手順を尊重する場面です。","trap":"反抗やわがまま、気を引くため、という見方は本人の不安を見落としています。本人にとっての「安心」がキーワードです。","mnemonic":"こだわり＝安心のスイッチ"},"17":{"plain":"ディスレクシアはLDの一種で、文字を読むこと・書くことに特に困難がある状態です。知的な遅れとは別に考えます。","example":"話を聞いて理解するのは得意なのに、文字を読むと行を飛ばしたり読み間違えたりする子への支援を考える場面です。","trap":"計算の困難はディスカリキュリア、運動の困難はDCDの領域です。「レクシア＝読み書き」と結びつけると混同しません。","mnemonic":"レクシアは読み書き、文字の困難"},"18":{"plain":"「よくできたね」だけより、「最後まで丁寧に塗れたね」のように努力や過程を具体的に褒める方が、次も頑張ろうという気持ちにつながります。","example":"テストの点ではなく「昨日より長く座って考えられたね」と過程を言葉にして伝える場面です。","trap":"抽象的な褒め言葉、他児との比較、毎回のお菓子は、どれも過程を具体的に伝える方法ではありません。モノに頼らない具体性がポイントです。","mnemonic":"褒めるは具体的に、過程を見て伝える"},"19":{"plain":"発達障害かどうかを正式に決める「診断」は医師だけができる医療行為です。支援者は診断はできません。","example":"園で気になる様子があったとき、先生が診断名を決めるのではなく、保護者に医療機関の受診を勧める場面です。","trap":"教師・児童発達支援士・保護者は観察や相談はできても診断はできません。支援と診断の役割の線引きが引っかけです。","mnemonic":"診断は医師だけ、支援者は観察と連携"},"20":{"plain":"療育とは、その子に合ったやり方で発達を後押しし、生活しやすさと自立を支える取り組みのことです。だから〇です。","example":"言葉の発達に合わせて絵カードを使いながら、身支度や集団遊びに参加できるよう支援する場面です。","trap":"逆に「無理に普通に直すこと」と捉えると誤りになります。療育は矯正ではなく、その子に合った発達支援です。","mnemonic":"療育はその子に合わせて伸ばす支援"},"21":{"plain":"落ち着きなく動く背景には、刺激が欲しい、不安があるなど理由があることがほとんどで、大人を困らせようという意図は考えにくいものです。","example":"座っていられず歩き回る子が、実は次の活動が分からず不安だったと分かり、見通しを伝えたら落ち着いた場面です。","trap":"感覚欲求、不安・ストレス、覚醒レベルの調整はどれもあり得る背景です。「意図的に困らせる」だけが支援の考え方と逆です。","mnemonic":"行動には理由がある、困らせるためじゃない"},"22":{"plain":"児童発達支援士は民間資格で、2025年10月現在、更新手続きはありません。一度取得すればそのまま有効です。だから〇です。","example":"数年前に取得した人が、更新講習を受けなくても資格を持ち続けられる制度です。","trap":"国家資格のような定期更新があると思い込むのが引っかけです。「民間資格・更新なし」をセットで覚えます。","mnemonic":"民間資格で更新なし、取ったらそのまま"},"23":{"plain":"信頼関係の土台は、正そうとせず評価もせず、子どもの話をそのまま聴く「傾聴」の姿勢です。","example":"友達とけんかした話を途中で正さず最後まで聴き、「悔しかったんだね」と受け止める場面です。","trap":"正しい答えを教える、間違いをすぐ正す、権威を示す、はいずれも聴く姿勢とは逆です。まず受け止めることが基本です。","mnemonic":"信頼は傾聴から、まず聴く"},"24":{"plain":"合理的配慮とは、障害のある子も同じように参加できるよう、その子に合わせて環境ややり方を調整することです。大切な考え方なので〇です。","example":"文字を読むのが苦手な子にルビを振ったり、音が苦手な子に静かな席を用意したりする場面です。","trap":"逆の「特別扱いだから不要」という考えは誤りです。配慮は優遇ではなく、同じスタートラインに立つための調整です。","mnemonic":"合理的配慮は参加のための調整"},"25":{"plain":"SSTは友達との関わり方や気持ちの扱い方など、人との関わりの練習です。九九のような教科の暗唱は入りません。","example":"「仲間に入れて」の言い方や、怒りを落ち着かせる方法をロールプレイで練習する場面です。","trap":"友達の作り方、感情のコントロール、問題解決はすべてSSTの内容です。教科学習の「九九の暗唱」だけが場違いです。","mnemonic":"SSTは関わりの練習、九九は教科"},"26":{"plain":"TEACCHはASDのある人のために作られた支援の仕組みで、「構造化」が中心です。対象はASDです。","example":"教室に活動ごとの場所を決め、絵のスケジュールで一日の流れを見える化するTEACCH式の環境づくりです。","trap":"ADHDやLD向けのプログラムではありません。開発は米国ノースカロライナ大学で、対象＝ASDと結びつけます。","mnemonic":"TEACCHはASD支援、構造化が柱"},"27":{"plain":"ABC分析のBは「Behavior＝行動そのもの」です。Aが直前の出来事、Cが直後の結果です。","example":"「片付けの声かけ（A）の後に泣いて逃げる（B）、結果として片付けをしなくて済む（C）」と分けて記録する場面です。","trap":"AのAntecedent（先行条件）とCのConsequence（結果）との取り違えが狙われます。Background（背景）はABCにはない言葉です。","mnemonic":"真ん中のBはBehavior、行動そのもの"},"28":{"plain":"感覚統合療法は、触った感じ・体の位置・揺れなど複数の感覚を脳でうまくまとめるのが苦手な子へのアプローチです。","example":"ブランコやトランポリンなどの遊びを通して、体のバランス感覚や力加減を育てていく場面です。","trap":"視力・聴力そのものの異常や、教科の遅れ、友人トラブルへの療法ではありません。「複数の感覚を整理できない」がキーワードです。","mnemonic":"感覚統合は感覚の交通整理"},"29":{"plain":"ヒントを少しずつ減らして自力でできるようにする方法をフェイディングと言います。","example":"最初は手を添えてボタンを留め、次は声かけだけにし、最後は一人で留められるように段階を進める場面です。","trap":"シェイピングは行動を少しずつ目標に近づける、モデリングはお手本を見せる、プロンプティングはヒントを与えること自体です。「減らしていく」がフェイディングの決め手です。","mnemonic":"フェイドは薄れる、ヒントが薄れていく"},"30":{"plain":"就学の相談先は教育委員会・児童相談所・発達障害者支援センターなどで、税務署は関係ありません。","example":"年長児の就学先に迷う保護者に、教育委員会の就学相談を案内する場面です。","trap":"教育・福祉・医療の機関はすべて相談先になります。税金が仕事の税務署だけが全く関係のない機関です。","mnemonic":"就学相談は教育・福祉へ、税務署は税金だけ"},"31":{"plain":"言葉だけでは分かりにくい子でも、絵や写真で見せると理解しやすくなります。視覚的支援は有効なので〇です。","example":"「次は手洗いだよ」と言葉だけでなく絵カードを指さして伝え、スムーズに移動できる場面です。","trap":"逆の「目で見せる支援は効果がない」は誤りです。ASDの子など、耳より目からの情報が得意な子は多くいます。","mnemonic":"言葉が難しければ目で見せる"},"32":{"plain":"ペアレント・トレーニングは、保護者が褒め方や指示の出し方など、子どもへの関わり方を学ぶためのものです。","example":"保護者が「具体的に褒める」「短く肯定的に指示する」を練習し、家庭での関わりが変わっていく場面です。","trap":"学力向上や保護者同士の交流が主目的ではなく、完治を目指すものでもありません。主役は保護者の「対応スキル」です。","mnemonic":"ペアトレは親の関わり方トレーニング"},"33":{"plain":"ADHDの薬の多くは、注意や意欲に関わるドーパミン（とノルアドレナリン）の働きを整えることで症状を和らげます。","example":"医師の処方で薬を使いながら、授業中の離席が減り課題に取り組める時間が伸びていく場面です。","trap":"セロトニンは気分の安定などに関わる別の物質です。ADHD薬の中心はドーパミン系、と押さえます。","mnemonic":"ADHDの薬はドーパミンを整える"},"34":{"plain":"「心の理論」とは、相手にも自分とは違う気持ちや考えがあると分かり、推し量る力のことです。ASDの子はここが苦手なことがあります。","example":"友達が黙っている理由を考えにくい子に、表情カードで気持ちを一緒に確認する場面です。","trap":"実行機能は段取りや抑制、ワーキングメモリは一時的な記憶の力です。「相手の心を推し量る」のは心の理論の担当です。","mnemonic":"心の理論は相手の心を読む力"},"35":{"plain":"児童発達支援士は国家資格ではなく、一般社団法人 人間力認定協会が認定する民間資格です。だから「国家資格である」は×です。","example":"保育士のような国の試験で取る資格とは違い、民間の協会の講座と試験で取得する資格です。","trap":"「国家資格」と書かれたら×が基本パターンです。認定団体（人間力認定協会）とセットで覚えます（Q88と連動）。","mnemonic":"民間資格、人間力認定協会が認定"},"36":{"plain":"構造化とは、場所・時間・手順を目で見て分かるように整理して、先の見通しを持たせる工夫です。だから〇です。","example":"教室を「勉強する場所」「遊ぶ場所」に分け、絵の予定表で次の活動を示す場面です。","trap":"逆の「自由にさせて見通しを持たせない」支援ではありません。TEACCHの基本もこの構造化です（Q26と連動）。","mnemonic":"構造化＝見通しの見える化"},"37":{"plain":"LDの子が学びにくいのは努力不足のせいではなく、脳の働き方の偏りによるものです。だから「努力が足りない」は×です。","example":"一生懸命練習しても漢字が覚えにくい子に、努力を認めた上で書き方以外の覚え方を一緒に探す場面です。","trap":"Q11（親の育て方が原因ではない）と同じく「本人のせいにする」文は誤りです。原因は脳機能の特性です。","mnemonic":"LDは努力不足じゃない、脳の特性"},"38":{"plain":"タイムアウトは、興奮した子を刺激の少ない場所で落ち着かせる方法として使われます。罰ではなくクールダウンが目的です。だから〇です。","example":"友達を叩いてしまった子を静かなコーナーに短時間移動させ、落ち着いてから話を聞く場面です。","trap":"逆に「罰として長時間閉じ込める」使い方は誤りです。短時間・落ち着くため、という条件付きで有効な方法です。","mnemonic":"タイムアウトは罰じゃない、落ち着く時間"},"39":{"plain":"個別支援計画の中心は、支援者でも保護者でもなく、子ども本人です。本人の願いや興味を真ん中に置きます。","example":"本人が好きな電車の活動を取り入れながら目標を立て、本人の「やってみたい」を計画に反映する場面です。","trap":"大人が決めがちな支援者・保護者が引っかけです。「本人中心」が今の支援の原則です。","mnemonic":"計画の真ん中は子ども本人"},"40":{"plain":"資格を取るには認定講座を受けて学習を終えることが必要で、試験だけ受けて合格しても取得できません。だから文は×です。","example":"まず講座のテキストと動画で学び、修了した上でオンライン試験を受ける、という順番が決まっている流れです。","trap":"「講座なしで試験だけ」は不可です。講座受講＋試験合格の両方が必要、と覚えます。","mnemonic":"講座を受けてから試験、順番必須"},"41":{"plain":"DCD（発達性協調運動障害）は、体の動きを合わせるのが極端に苦手で、不器用さが目立つ状態です。","example":"ボールがうまく投げられない、ハサミや箸の操作が年齢に比べてとても難しい子への支援を考える場面です。","trap":"読み書きの困難はLD、計算の困難はディスカリキュリア、発音の問題は別の領域です。「協調運動＝体の不器用さ」がDCDです。","mnemonic":"DCDは体の不器用さ、協調運動の困難"},"42":{"plain":"遊びは楽しみだけでなく、体・頭・心・人との関わりを育てる大切な学びの場です。だから〇です。","example":"ブロック遊びで指先や考える力が育ち、友達とのやり取りで社会性も伸びていく場面です。","trap":"逆の「遊びは勉強の邪魔」という考えは誤りです。子どもにとって遊び自体が発達の栄養です。","mnemonic":"遊びは発達の栄養"},"43":{"plain":"ABA（応用行動分析）は、行動はその前後の環境に影響されると考え、環境を整えることで行動を支援する考え方です。","example":"癇癪の前に何があり、後に何が起きたかをABC分析で整理し、先行条件を変えて癇癪を減らしていく場面です。","trap":"罰を中心に考える、遺伝で決まると考える、内面だけが原因と考える、はいずれもABAの立場ではありません。「環境との相互作用」がキーワードです。","mnemonic":"ABAは環境を変えて行動を支援"},"44":{"plain":"トークンエコノミーは、良い行動にシールなどのトークンを渡し、貯まったら好きなことと交換できる仕組みです。だから〇です。","example":"お片付けができたら星シールを1枚渡し、10枚貯まったら好きな遊びを選べるようにする場面です。","trap":"逆の「トークンは罰に使う」仕組みではありません。トークンは頑張りを目に見える形で貯める強化の道具です。","mnemonic":"トークンは貯めて交換、頑張りの貯金"},"45":{"plain":"ASDの子の強い興味は、取り上げるのではなく、学びへの入り口や頑張る理由として活かすのが良い支援です。","example":"電車が大好きな子に、電車の絵を使って数の勉強や発表の練習につなげる場面です。","trap":"取り上げる、異常だと教える、他児と同じ興味を強いる、はいずれも興味を力に変える発想と逆です。","mnemonic":"強い興味は味方、学びの入り口に"},"46":{"plain":"合格基準は50問中35問以上、正答率70%以上です。この数字は試験制度で最も大事な数字です。","example":"本番モードで34問正解だとあと1問で合格ライン、というように合否を分ける基準です。","trap":"30問（60%）や40問（80%）と取り違えないよう注意します。「50問中35問・70%」をワンセットで覚えます。","mnemonic":"合格は35問、50問の70%"},"47":{"plain":"ワーキングメモリは、情報を少しの間覚えながら同時に考える力、いわば頭の中のメモ帳です。","example":"「靴を履いて、水筒を持って」と2つの指示を覚えながら行動したり、暗算で途中の答えを覚えたりする場面です。","trap":"長期的な思い出の記憶や、体で覚える記憶とは違います。「一時的に保持＋処理」の両方が入っている選択肢が正解です。","mnemonic":"ワーキングメモリは頭のメモ帳"},"48":{"plain":"支援は「できないこと」を直すだけでなく、「できること・得意なこと」を伸ばす視点が大切です。だから〇です。","example":"計算は苦手でも絵が得意な子の絵を掲示して自信につなげ、得意を入り口に学びを広げる場面です。","trap":"逆の「苦手の克服だけに集中する」支援は自信を下げやすくなります。ストレングス（強み）の視点がポイントです。","mnemonic":"できないより、できるを伸ばす"},"49":{"plain":"実行機能は計画・抑制・切り替えなど、自分をコントロールする力の集まりです。感情を認識することは入りません。","example":"宿題の順番を決める（計画）、手を出すのを我慢する（抑制）、遊びから勉強に気持ちを替える（切り替え）場面です。","trap":"感情の認識は心の理論や社会性に関わる力です（Q34と対比）。実行機能は「自分を管理する力」と覚えます。","mnemonic":"実行機能は計画・抑制・切り替え"},"50":{"plain":"この資格で学ぶ脳科学のアプローチは、専門家でなくても日常の中で誰でも実践できることを目指しています。だから〇です。","example":"保護者が家庭で「60秒以内に具体的に褒める」をそのまま試せるような、実践しやすい方法が紹介される場面です。","trap":"逆の「専門家だけが使える難しい方法」が目的ではありません。分かりやすさ・実践しやすさが特徴です（Q9と連動）。","mnemonic":"誰でもすぐに実践できるのが特徴"},"51":{"plain":"就学前の障害のある子が通う地域の中心的な療育機関が、児童福祉法に基づく児童発達支援センターです。","example":"未就学の子が毎日通って、身支度や集団生活の練習などの療育を受ける場面です。","trap":"児童養護施設は生活の場、学童保育は放課後の預かり、フリースクールは主に学齢期の学びの場です。「就学前＋療育の中心＝センター」です。","mnemonic":"就学前の療育の中心は児童発達支援センター"},"52":{"plain":"感覚を求める行動は止めるのではなく、安全で周りに認められる別の方法で満たしてあげるのが良い対応です。","example":"体をぶつけたくなる子にトランポリンや重い荷物運びの活動を用意し、感覚の欲求を安全に満たす場面です。","trap":"禁止・無視・罰は欲求そのものを消しません。「代替行動で満たす」が感覚支援の基本です。","mnemonic":"求める感覚は安全な方法で満たす"},"53":{"plain":"行動の記録は、感想や推測ではなく、誰が見ても同じに分かる事実を具体的に書くことが大切です。","example":"「落ち着きがなかった」ではなく「10時5分に立ち上がり、教室を2周歩いた」と事実で記録する場面です。","trap":"主観や解釈を交える、良い行動だけ書く、問題のときだけ書く、はいずれも記録の原則に反します。「客観的・具体的」が正解です。","mnemonic":"記録は感想じゃなく事実で具体的に"},"54":{"plain":"般化とは、療育の場でできるようになったことが、家や学校など他の場面でもできるようになることです。だから〇です。","example":"園で「貸して」と言えた子が、公園でも友達に同じように言えるようになる場面です。","trap":"逆の「特定の場面でしか使えないまま」が目標ではありません。支援のゴールは生活の場へ広がることです。","mnemonic":"般化は他の場面でもできること"},"55":{"plain":"プレイセラピー（遊戯療法）は、遊びを通して気持ちを表し、心を軽くするための心理療法です。教科を教えるものではありません。","example":"人形遊びの中で不安な気持ちを表現し、セラピストとの関わりの中で少しずつ落ち着いていく場面です。","trap":"感情表現の助け、コミュニケーションの向上、カタルシス（心の浄化）はすべて目的に入ります。「学問的スキルを教える」だけが目的外です。","mnemonic":"プレイセラピーは遊びで心をほぐす"},"56":{"plain":"衝動性はADHDの主な特性の一つで、考えより先に行動してしまうことがよくあります。だから〇です。","example":"順番を待てずに割り込んでしまったり、思いついたことをすぐ口に出してしまったりする場面です。","trap":"逆の「ADHDに衝動性はない」は誤りです。不注意・多動性と並ぶ代表的な特性です。","mnemonic":"ADHDの3つ、不注意・多動・衝動"},"57":{"plain":"一人遊びを好むのは、人付き合いが嫌いだからではなく、自分のペースで予測できる活動の方が安心できるからです。","example":"にぎやかな集団遊びより、決まったパズルを一人で黙々と進める時間に落ち着く子の姿です。","trap":"「他の子が嫌い」「協調性がない」という決めつけが引っかけです。安心と見通しが理由の中心です（Q16のこだわりと連動）。","mnemonic":"一人遊びは安心できるから"},"58":{"plain":"マルチセンサリーは、見て・聞いて・触ってなど複数の感覚を一緒に使う学び方で、LDの子に有効なことがあります。だから〇です。","example":"文字を目で見ながら声に出し、指でなぞって覚えるなど、目・耳・手の感覚を組み合わせる場面です。","trap":"逆の「一つの感覚だけに絞る方が良い」ではありません。感覚を組み合わせて補い合うのがポイントです。","mnemonic":"マルチは多感覚、組み合わせて学ぶ"},"59":{"plain":"ソーシャルストーリーは、これから起きる場面や望ましい行動を、短く肯定的な物語にして伝える支援ツールです。だから〇です。","example":"「明日は歯医者さんに行きます。椅子に座って口を開けます。大丈夫です」のように本人の視点で書いた物語を事前に読む場面です。","trap":"逆の「叱るための物語」ではありません。開発者はキャロル・グレイ氏で、見通しと安心のための道具です。","mnemonic":"ソーシャルストーリーは見通しの物語"},"60":{"plain":"講座の教材はテキストとワークブックに加えて、要点を解説する動画を視聴する形式が含まれています。","example":"テキストで読んだ内容を動画の解説で確認しながら学習を進める流れです。","trap":"アニメーションや映画、ドキュメンタリー番組ではありません。教材の構成は「テキスト＋ワークブック＋動画」です。","mnemonic":"教材はテキスト・ワークブック・動画の3点"},"61":{"plain":"活動を避ける行動の裏には、「失敗したらどうしよう」という不安や恐怖が隠れていることが多いです。","example":"発表を嫌がる子が、実は間違えることを怖がっていたと分かり、小さな成功体験から始める場面です。","trap":"喜びや興味で避けることは考えにくく、怒りが主役でもありません。「避ける＝怖い・不安」が基本の見立てです。","mnemonic":"回避の裏には不安と恐怖"},"62":{"plain":"発達障害の特性自体が完全になくなることはまれですが、支援や環境調整で生活の困りごとは軽くできます。だから〇です。","example":"特性はそのままでも、視覚支援や段取りの工夫で学校生活がぐっと送りやすくなる子の姿です。","trap":"逆の「支援しても何も変わらない」も、「完全に治る」もどちらも誤りです。「特性は続くが困難は減らせる」が正確です。","mnemonic":"特性は続く、困難は支援で軽くなる"},"63":{"plain":"プロンプトとは、正しい行動ができるように出す手がかりやヒントのことです。","example":"着替えの手順カードを指さす、最初の一文字を声に出すなど、成功を助ける補助を出す場面です。","trap":"罰や報酬そのものではなく、行動の前に出す「助け」がプロンプトです。ヒントを減らすフェイディング（Q29）とセットで覚えます。","mnemonic":"プロンプトはヒント、成功のお助け"},"64":{"plain":"子どもは家庭で過ごす時間が長いため、家族との連携は支援に欠かせません。「重要ではない」は×です。","example":"園で使っている絵カードを家庭でも同じように使い、関わり方をそろえる場面です。","trap":"逆が正しく、家族支援は児童発達支援の柱の一つです。般化（Q54）にも家族連携が欠かせません。","mnemonic":"家族連携は支援の柱、欠かせない"},"65":{"plain":"常同行動とは、体を揺らす、手をひらひらさせるなど、同じ行動を繰り返すことです。","example":"不安な場面で手をひらひらさせたり、同じフレーズを繰り返したりして自分を落ち着かせる子の姿です。","trap":"他者の真似はエコラリアなど別の現象に近く、新しい挑戦や目的ない多動とも違います。「同じ行動の繰り返し」が定義です。","mnemonic":"常同は同じ行動のリピート"},"66":{"plain":"オンライン試験では、一度次に進むと前の問題に戻って直すことはできません。その仕様通りなので〇です。","example":"本番では一問ずつ慎重に答えてから次へ進む必要があり、このクエストの本番モードの心構えにもつながります。","trap":"逆の「後から自由に見直せる」はこの試験には当てはまりません。「戻れない」を前提に一問集中が大切です。","mnemonic":"本番は戻れない、一問に集中"},"67":{"plain":"パニックのときは、静かで落ち着ける場所に移して安心させるのが最も適切です。説得や叱責は逆効果です。","example":"大声で泣き叫ぶ子を刺激の少ないコーナーへ誘導し、落ち着くまで静かに見守る場面です。","trap":"理由を論理的に説明する、大声で叱る、一人にして立ち去る、はいずれも適切ではありません。安全と安心が優先です（Q13と連動）。","mnemonic":"パニック時は静かな場所で安心を"},"68":{"plain":"愛着（アタッチメント）は、子どもが特定の養育者との間に作る情緒的な絆のことです。だから〇です。","example":"不安なときに養育者のそばで安心し、また遊びに戻っていける関係が育っている場面です。","trap":"逆の「誰に対しても同じ結びつき」という理解は誤りです。「特定の養育者との絆」で、提唱者はボウルビィです。","mnemonic":"愛着は特定の人との心の絆、ボウルビィ"},"69":{"plain":"インクルーシブ教育は、障害の有無にかかわらず、すべての子どもが同じ教室で共に学ぶことを基本とします。","example":"障害のある子も地域の学校の同じクラスで学び、必要な配慮を受けながら一緒に活動する場面です。","trap":"特別な学校だけに分ける、障害のない子を優先する、完全に分離する、はいずれも共に学ぶ考え方と逆です。","mnemonic":"インクルーシブは共に学ぶ"},"70":{"plain":"協会が最も重視する目的は、受講者の就職や協会の利益ではなく、発達障がい児支援の輪を広げることです。","example":"資格を取る人が増えることで、家庭・園・地域のあちこちに理解ある支援者が広がっていくイメージです。","trap":"就職を有利にすることなどは副次的な話です。理念は「支援の輪を広げること」と正確に覚えます。","mnemonic":"目的は支援の輪を広げること"},"71":{"plain":"自分で選ぶ経験は、自立心や「自分で決められた」という自信を育てます。大切なことなので〇です。","example":"「赤と青、どちらの上着にする？」と選ばせ、自分で決めた服で一日を過ごす場面です。","trap":"逆の「大人がすべて決めた方が育つ」ではありません。小さな自己選択の積み重ねが自己決定につながります（Q89と連動）。","mnemonic":"選ぶ経験が自立と自信を育てる"},"72":{"plain":"過集中とは、好きなことには周りが見えなくなるほど没頭してしまう状態のことです。ADHDで見られます。","example":"ゲームや工作に没頭して声をかけても気づかず、食事の時間も忘れてしまう子の姿です。","trap":"注意散漫・多動性・衝動性はADHDの特性ですが、「好きなことへの異常な集中」を指す言葉は過集中です。注意の切り替えにくさの裏返しです。","mnemonic":"過集中は好きなことに没頭しすぎること"},"73":{"plain":"比喩や皮肉をそのまま受け取るのは、言葉の裏にある意図を読み取るのが苦手だからです。ユーモアがないわけではありません。","example":"皮肉で「よくできたね」と言われても言葉通りに受け取り、叱られていると気づかない場面です。","trap":"わざと、聴覚の問題、センスの問題ではありません。Q2（冗談や比喩の理解）と同テーマで、理由は「言外の意味の読み取りにくさ」です。","mnemonic":"文字通りに受け取る、裏を読むのが苦手"},"74":{"plain":"子どもの支援には医療・福祉・教育・心理など多くの専門職の協力が必要です。多職種連携は重要なので〇です。","example":"医師・保育士・心理士・言語聴覚士が情報を共有し、同じ目標で一人の子を支える場面です。","trap":"逆の「一つの職種だけで完結する」支援ではありません。それぞれの専門性を持ち寄ることが原則です。","mnemonic":"支援はチーム戦、多職種で支える"},"75":{"plain":"モデリングとは、大人が望ましい行動を実際にやって見せ、子どもが真似して学ぶ方法です。だから〇です。","example":"「貸して」の言い方を大人が友達役にやって見せてから、子どもに練習してもらう場面です。","trap":"逆の「言葉だけで説明する」方法ではありません。「見せる」がモデリングの決め手で、プロンプトやフェイディングと区別します。","mnemonic":"モデリングはお手本を見せる"},"76":{"plain":"自己肯定感を高めることは、この資格の学びで大切にされている柱の一つです。だから〇です。","example":"「できた」を増やす関わり（Q6）や良いところを伝える関わり（Q99）が、学び全体を通して重視される場面です。","trap":"逆の「知識だけ身につければよい」ではありません。心の土台としての自己肯定感が繰り返し出てくる重要テーマです。","mnemonic":"自己肯定感は支援の柱"},"77":{"plain":"感覚防衛反応とは、触覚や音など特定の刺激に脳が過剰に反応して強い不快感を示すことです。その通りなので〇です。","example":"服のタグが触れるだけで痛がったり、特定の音で耳をふさいで逃げたりする子の姿です。","trap":"逆の「わがままで大げさに騒いでいる」という見方は誤りです。本人には本当に苦痛で、Q12の感覚過敏とつながる反応です。","mnemonic":"感覚防衛は刺激への過剰な警報"},"78":{"plain":"チェイニングは、着替えや歯磨きのような一連の行動を小さなステップに分け、順に教えていく方法です。だから〇です。","example":"歯磨きを「歯ブラシを持つ→歯磨き粉をつける→磨く→うがいする」と分けて一つずつ練習する場面です。","trap":"逆の「一気に全部を教える」方法ではありません。前から教える順行連鎖と、最後から教える逆行連鎖があります。","mnemonic":"チェイニングは鎖のようにつなぐステップ学習"},"79":{"plain":"表情や身振りから相手の気持ちを読むのが苦手な子はいます。「心の理論」の課題と関わる内容で、〇です。","example":"友達が困った顔をしていても気づかず、言葉で「手伝って」と言われて初めて分かる子の場面です。","trap":"逆の「発達障害の子は皆、表情を読むのが得意」は誤りです。非言語の手がかりの読み取りにくさがポイントです（Q34と連動）。","mnemonic":"表情を読む苦手さは心の理論と関連"},"80":{"plain":"この資格の土台は、最新の脳科学と心理学の研究成果に基づいたアプローチです。","example":"「60秒以内に褒める」「200回で習慣化」など、脳科学の知見を日常の関わりに落とし込む学び方です。","trap":"薬物療法や精神分析、スピリチュアルな方法ではありません。「脳科学＋心理学」が資格の看板です。","mnemonic":"土台は脳科学と心理学"},"81":{"plain":"スケジュール提示の目的は、見通しを持たせて不安を減らし、切り替えを助けることです。記憶力を試すためではありません。","example":"朝に絵の予定表を一緒に確認し、「次は外遊びだね」と見通しを持って移動する場面です。","trap":"見通し・切り替え・言葉の補助はすべて正しい目的です。「記憶力を試す」だけが支援の目的と逆になっています。","mnemonic":"スケジュールは安心のため、テストじゃない"},"82":{"plain":"ディスカリキュリアはLDの一種で、数の理解や計算など算数に関わる困難のことです。","example":"年齢相応の会話はできるのに、数の大小や繰り上がりの計算だけ極端に難しい子への支援を考える場面です。","trap":"読み書きの困難はディスレクシア（Q17）です。「カリキュリア＝計算（calculate）」と語源で結びつけると混同しません。","mnemonic":"カリキュリアは計算、レクシアは読み書き"},"83":{"plain":"問題行動を見たときは、行動そのものだけでなく「何のために（機能）」を考えることが大切です。だから〇です。","example":"授業中に立ち歩く行動が「注目してほしい」ためか「課題から逃げたい」ためかで、対応を変える場面です。","trap":"逆の「行動だけを止めればよい」では再発しやすくなります。注目・逃避・感覚刺激などが機能の代表例です（ABAの考え方、Q43と連動）。","mnemonic":"行動には機能（目的）がある"},"84":{"plain":"試験は年に1回ではなく、学習を終えたら自分のタイミングでいつでもオンライン受験できます。だから文は×です。","example":"仕事の都合に合わせて、講座修了後の好きな日に自宅から受験する流れです。","trap":"「年1回・決められた日」は一般的な国家試験のイメージで引っかけです。Q14のオンライン形式とセットで覚えます。","mnemonic":"いつでもオンライン受験できる"},"85":{"plain":"クールダウンの場所や時間を用意することは、気持ちを自分で落ち着ける練習になり、有効な支援です。だから〇です。","example":"イライラしたら自分で静かなコーナーに行き、落ち着いたら活動に戻る約束を事前に決めておく場面です。","trap":"逆の「感情が苦手な子には逆効果」ではありません。タイムアウト（Q38）とも通じる、落ち着くための環境づくりです。","mnemonic":"クールダウンの場が気持ちを整える"},"86":{"plain":"エコラリア（反響言語）は、相手の言った言葉をそのまま繰り返す現象です。オウム返しのように聞こえます。","example":"「ご飯にする？」と聞くと「ご飯にする？」とそのまま返す子が、実は肯定の意味で使っている場面です。","trap":"独り言や新しい言葉を作ることとは違います。単なる真似ではなく、意思伝達や安心の機能がある点も押さえます。","mnemonic":"エコーはこだま、言葉のオウム返し"},"87":{"plain":"支援の目標は、すべての子を定型発達に近づけることではありません。その子の個性を尊重し、力を伸ばすことです。だから文は×です。","example":"特性を個性として受け止め、その子らしく社会で生きる力を育てる支援計画を立てる場面です。","trap":"逆が正しく、「普通に近づける」発想は本人の尊重とずれます。Q39の本人中心、Q48の強みの視点とつながります。","mnemonic":"目標は普通にすることじゃない、その子らしさ"},"88":{"plain":"認定団体は一般社団法人 人間力認定協会です。国の機関ではありません。","example":"講座の運営も資格の認定も、この協会が行っている仕組みです。","trap":"厚生労働省や文部科学省は国の機関で引っかけです。Q35（民間資格）と必ずセットで覚える最重要知識です。","mnemonic":"認定は人間力認定協会、国の機関じゃない"},"89":{"plain":"選択肢を示して自分で決める経験は、自己効力感を高め、どうすればよいか分からない混乱（パニック）も防ぎます。だから〇です。","example":"「絵本とブロック、どっちから始める？」と示すことで、自分で決めて落ち着いて活動に入れる場面です。","trap":"逆の「選択肢は混乱のもと」ではありません。具体的な2択の提示は見通しにもなります（Q71の自己選択と連動）。","mnemonic":"選択肢提示で決める力と安心を"},"90":{"plain":"学習では具体的な事例（ケーススタディ）を通して、現場での対応の仕方を学びます。だから〇です。","example":"「癇癪が起きた場面」の事例を読み、自分の対応を振り返りながら実践的な引き出しを増やす学び方です。","trap":"逆の「理論だけで実践は学ばない」ではありません。実践重視がこの資格の特徴です（Q9・Q50と連動）。","mnemonic":"ケーススタディで実践力をつける"},"91":{"plain":"ADHDの不注意は、やる気や努力の問題ではなく、脳の機能的な特性によるものです。だから「やる気不足が原因」は×です。","example":"忘れ物が多い子を叱るのではなく、持ち物チェック表など環境の工夫で支える場面です。","trap":"Q15・Q37と同じく「本人のせいにする」文は誤りです。特性理解と環境調整が支援の出発点です。","mnemonic":"不注意はやる気の問題じゃない、脳の特性"},"92":{"plain":"「走らない」より「歩こうね」のように、してほしい行動を肯定的に伝える方が伝わりやすいです。だから〇です。","example":"廊下で「歩こうね」と伝えると、そのまま望ましい行動に移れる場面です。","trap":"逆の「否定形の方が効果的」ではありません。脳は「～するな」のイメージを処理しにくいとされます。","mnemonic":"指示は否定形より肯定形で"},"93":{"plain":"発達障害は病気ではないので「治癒する」ものではありません。支援で困難を軽くすることはできます。だから文は×です。","example":"特性と上手に付き合いながら、その子らしく生活できるよう環境を整えていく支援の姿です。","trap":"Q62と同テーマです。「自然に治る」も「何も変わらない」も誤りで、正しくは「特性は続くが適応は高められる」です。","mnemonic":"治すものじゃない、付き合い方を支援する"},"94":{"plain":"合格率は約50%ではなく、公式サイトでは約90%とされています。教材を学べば合格を目指しやすい試験です。だから文は×です。","example":"講座の内容をしっかり学習した受講者の多くが合格している、という水準の試験です。","trap":"数字の引っかけです。「合格基準35問（Q46）」と「合格率約90%」は混同しやすいので分けて覚えます。","mnemonic":"合格率は約90%、基準は35問と区別"},"95":{"plain":"こだわりは困りごとの面だけでなく、深い知識や集中力につながる豊かさの面もあります。一概に否定しないことが大切で、〇です。","example":"電車への強いこだわりが、路線図を覚える力や将来の得意分野につながっていく子の姿です。","trap":"逆の「こだわりはすべて直すべき」ではありません。Q45（興味を動機づけに活かす）と同じポジティブな視点です。","mnemonic":"こだわりは強みにもなる"},"96":{"plain":"学習期間の目安は20〜30時間程度です。半年や1年かかる講座ではありません。","example":"毎日1時間ずつ学べば3〜4週間ほどで修了できるボリューム感です。","trap":"約1週間では短すぎ、半年・1年は長すぎる選択肢です。「20〜30時間」という時間数で正確に覚えます。","mnemonic":"学習は20〜30時間、コツコツ約1か月"},"97":{"plain":"失敗したときは責めるのではなく、「次はどうすればうまくいくか」を一緒に考える姿勢が大切です。だから〇です。","example":"こぼしてしまった子に「次は両手で持ってみようか」と一緒に方法を考え、再挑戦を応援する場面です。","trap":"逆の「失敗は厳しく責めるべき」ではありません。失敗を学びに変える関わりが挑戦する意欲と回復力（レジリエンス）を育てます。","mnemonic":"失敗は責めずに次を一緒に考える"},"98":{"plain":"この資格は日本の民間資格で、海外で通用する国際資格ではありません。だから文は×です。","example":"認定は一般社団法人 人間力認定協会による日本国内の資格、という位置づけです。","trap":"「国際資格」という言葉が引っかけです。Q35（民間資格）・Q88（認定団体）と一連で押さえます。","mnemonic":"日本の民間資格、国際資格じゃない"},"99":{"plain":"良いところやできていることを本人に伝えることは、自信と自己肯定感を育てる基本です。だから〇です。","example":"「今日は最後まで座れたね」とできていることをその場で言葉にして伝える場面です。","trap":"逆の「できて当たり前で伝える必要はない」ではありません。Q6・Q48・Q76と通じる、学び全体の土台の考え方です。","mnemonic":"良いところを言葉にして伝える"},"100":{"plain":"最も大切なのはテクニックより、子ども一人ひとりの特性を理解し、その子に合った支援を考え続ける姿勢です。だから〇です。","example":"同じ診断名でも興味も苦手も違う一人ひとりに合わせて、支援のやり方を変えていく場面です。","trap":"逆の「全員に同じ支援でよい」ではありません。全100問のまとめとして、本人中心（Q39）の姿勢が結論です。","mnemonic":"支援の根幹は一人ひとりに合わせる姿勢"}}</script>
+    <script>
+      "use strict";
+      var QUESTIONS = JSON.parse(document.getElementById("qdata").textContent);
+      var AI_EXPLANATIONS = JSON.parse(document.getElementById("aidata").textContent);
+      var QBYID = {};
+      QUESTIONS.forEach(function (q) { QBYID[q.id] = q; });
+
+      // ---------- Icons (inline SVG, stroke style) ----------
+      var ICON_PATHS = {
+        flag: '<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>',
+        target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
+        medal: '<circle cx="12" cy="14" r="5"/><path d="M8.6 9.7 6 3h4l2 4.2L14 3h4l-2.6 6.7"/>',
+        map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/>',
+        flame: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-2.5-5.5C15 8 13 6.5 13 3c-3 2-5 4.5-5 8-1-.5-1.7-1.3-2-2.5C5.4 10 5 11.5 5 13a7 7 0 0 0 7 9Z"/>',
+        star: '<polygon points="12 2.5 14.9 8.6 21.3 9.3 16.4 14 17.8 20.5 12 17.2 6.2 20.5 7.6 14 2.7 9.3 9.1 8.6" fill="currentColor" stroke="none"/>',
+        refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>',
+        crown: '<path d="M3 8.5 7.5 12 12 5.5 16.5 12 21 8.5 19.4 18H4.6L3 8.5Z"/><path d="M5 21h14"/>',
+        lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+        check: '<path d="M4 12.5 9.5 18 20 6.5"/>',
+        x: '<path d="M5 5l14 14M19 5L5 19"/>',
+        chevron: '<path d="m9 5 7 7-7 7"/>',
+        chevronDown: '<path d="m5 9 7 7 7-7"/>',
+        back: '<path d="m14 5-7 7 7 7"/>',
+        shuffle: '<path d="M3 7h4l3 3"/><path d="m14 14 3 3h4m0 0-3-3m3 3-3 3"/><path d="M3 17h4l3-3"/><path d="m14 10 3-3h4m0 0-3-3m3 3-3 3"/>',
+        list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.1" fill="currentColor" stroke="none"/>',
+        clipboard: '<rect x="6" y="4.5" width="12" height="17" rx="2"/><path d="M9.5 4.5a2.5 2.5 0 0 1 5 0"/><path d="m9.2 14.5 2 2 3.8-4"/>',
+        gear: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/>',
+        trash: '<path d="M4 7h16M9 7V4h6v3m-8 0 1 13.2h8L17 7"/>',
+        sparkles: '<path d="M11 4l1.7 5.3L18 11l-5.3 1.7L11 18l-1.7-5.3L4 11l5.3-1.7L11 4Z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/>',
+        download: '<path d="M12 3v11m0 0 4.2-4.2M12 14 7.8 9.8"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13A1.5 1.5 0 0 0 20 19.5V17"/>',
+        upload: '<path d="M12 14V3m0 0 4.2 4.2M12 3 7.8 7.2"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13A1.5 1.5 0 0 0 20 19.5V17"/>',
+        home: '<path d="m3 11 9-8 9 8"/><path d="M5.5 9.5V21h13V9.5"/>',
+        book: '<path d="M5 3.5A1.5 1.5 0 0 1 6.5 2H19v17.5H6.5A1.5 1.5 0 0 0 5 21Z"/><path d="M5 19.5A1.5 1.5 0 0 1 6.5 18H19"/>'
+      };
+      function icon(name, size) {
+        size = size || 22;
+        return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICON_PATHS[name] || ICON_PATHS.star) + "</svg>";
+      }
+      function esc(s) {
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+
+      // ---------- Game rules (same as the original) ----------
+      var EXAM_QUESTIONS = 50;
+      var EXAM_PASS_LINE = 35;
+      var MODE_LABELS = {
+        sequential: "順番に挑戦",
+        category: "カテゴリー別",
+        random10: "ランダム10問",
+        randomAll: "ランダム全問シャッフル",
+        review: "間違えた問題の復習",
+        exam: "本番モード",
+        unattempted: "未挑戦の問題だけ"
+      };
+      var CAT_COLORS = {
+        "発達障害の基礎知識": "#d97742",
+        "脳科学・心理学": "#4a7fb5",
+        "行動支援・コミュニケーション": "#3e9b6b",
+        "感覚・環境と実践支援": "#c05b7e",
+        "資格・試験・制度": "#2a9d8f"
+      };
+      var CATEGORIES = Object.keys(CAT_COLORS).map(function (name) {
+        return {
+          name: name,
+          color: CAT_COLORS[name],
+          questionIds: QUESTIONS.filter(function (q) { return q.category === name; }).map(function (q) { return q.id; })
+        };
+      });
+      function catColor(name) {
+        for (var i = 0; i < CATEGORIES.length; i++) if (CATEGORIES[i].name === name) return CATEGORIES[i].color;
+        return "#e8813a";
+      }
+      function xpForNextLevel(level) { return 100 + (level - 1) * 50; }
+      function levelProgress(xp) {
+        var level = 1, remaining = xp;
+        while (remaining >= xpForNextLevel(level)) { remaining -= xpForNextLevel(level); level += 1; }
+        var span = xpForNextLevel(level);
+        return { level: level, intoLevel: remaining, span: span, toNext: span - remaining };
+      }
+      var BADGES = [
+        { id: "first-challenge", name: "初チャレンジ", condition: "はじめて問題に挑戦する", icon: "flag", color: "#e8813a" },
+        { id: "correct-10", name: "10問正解", condition: "累計10問正解する", icon: "target", color: "#4a7fb5" },
+        { id: "correct-50", name: "50問正解", condition: "累計50問正解する", icon: "medal", color: "#d9a514" },
+        { id: "all-100", name: "全100問に挑戦", condition: "全100問に1回以上挑戦する", icon: "map", color: "#2a9d8f" },
+        { id: "streak-10", name: "10連続正解", condition: "10問連続で正解する", icon: "flame", color: "#d95d4e" }
+      ].concat(CATEGORIES.map(function (c) {
+        return { id: "category:" + c.name, name: c.name + " 制覇", condition: "「" + c.name + "」の全" + c.questionIds.length + "問に正解する", icon: "star", color: c.color };
+      })).concat([
+        { id: "review-master", name: "復習マスター", condition: "間違えた問題を10問卒業する", icon: "refresh", color: "#3e9b6b" },
+        { id: "exam-pass", name: "本番モード合格", condition: "本番モードで35問以上正解する", icon: "crown", color: "#c05b7e" }
+      ]);
+      function shuffle(items) {
+        var arr = items.slice();
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+      function formatDate(iso) {
+        if (!iso) return "";
+        var p = iso.split("-");
+        if (p.length !== 3) return iso;
+        return Number(p[0]) + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
+      }
+      function todayTokyo() {
+        try {
+          return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+        } catch (e) {
+          var d = new Date();
+          function pad(n) { return (n < 10 ? "0" : "") + n; }
+          return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+        }
+      }
+
+      // ---------- State + storage (localStorage + Cookie, with in-memory fallback) ----------
+      // 保存先は2系統: (1) localStorage（主キー＋控えキーの二重保存） (2) Cookie（長期保存用）。
+      // どちらか一方しか書けない環境でも、書けた方で継続できるようにする。
+      // 起動時は両保存先と読み込み候補のうち保存日時が最新のものを採用する。
+      // Cookie は1個あたり約4KB上限のため、進捗はコンパクト符号化する:
+      //   回答済み/正解済み/間違いリストは100問ビットマップ、間違い回数は1問1文字（上限35）、
+      //   最後に間違えた日は1問3文字（2020-01-01からの日数, base36）、数値類は base36、
+      //   バッジは BADGES 順のビットマップ。レベルはXPから再計算できるため保存しない。
+      //   符号化後の Cookie 文字列は通常 600 字未満で、4KBに十分収まる（保存時に長さも検証する）。
+      // Cookie 属性: Max-Age=34560000（400日＝ブラウザ上限相当。保存のたびに再設定し期限を延長する
+      //   スライディング方式）、Path=このページのディレクトリ、SameSite=Lax。
+      // 正直な限界: Cookie もブラウザのサイトデータ削除・プライベートモード・アプリ内ブラウザの
+      //   別ストレージでは消える/届かない場合があり、Safari の ITP では JavaScript が書いた
+      //   Cookie の寿命が短く制限される場合がある。そのため保証はせず、バックアップも案内する。
+      var STORAGE_KEY = "jidou-hattatsu-quest-shared-v1";
+      var STORAGE_BACKUP_KEY = STORAGE_KEY + "-backup";
+      var COOKIE_NAME = "jhqsv1";
+      var COOKIE_MAX_AGE = 34560000; // 400 days in seconds
+      var COOKIE_LIMIT = 4096;
+      var saveStatus = "unknown"; // "ok" | "failed"（どちらか一方でも書き込み検証できれば ok）
+      var lastSavedAt = null; // ISO string: 最後に保存が確認できた時刻
+      var lsSaveOk = null; // null=未確認, true/false=直近の保存試行で localStorage に書けたか
+      var cookieSaveOk = null; // null=未確認, true/false=直近の保存試行で Cookie に書けたか（読み戻し検証）
+      var lastCookieLength = 0; // 直近に書いた Cookie の「名前=値」の長さ（4KB検証用）
+      function probeStorage() {
+        try {
+          var k = "__quest_test__";
+          window.localStorage.setItem(k, "1");
+          window.localStorage.removeItem(k);
+          return true;
+        } catch (e) { return false; }
+      }
+      var storageOK = probeStorage();
+      function emptyState() {
+        return { xp: 0, totalAnswered: 0, totalCorrect: 0, bestStreak: 0, graduatedCount: 0, examPassed: false, stats: {}, badges: [], savedAt: null };
+      }
+      function sanitizeState(s) {
+        if (!s || typeof s !== "object") return null;
+        var base = emptyState();
+        for (var k in base) if (Object.prototype.hasOwnProperty.call(s, k)) base[k] = s[k];
+        if (!base.stats || typeof base.stats !== "object") base.stats = {};
+        if (!Array.isArray(base.badges)) base.badges = [];
+        ["xp", "totalAnswered", "totalCorrect", "bestStreak", "graduatedCount"].forEach(function (f) {
+          if (typeof base[f] !== "number" || !isFinite(base[f]) || base[f] < 0) base[f] = 0;
+        });
+        if (typeof base.examPassed !== "boolean") base.examPassed = false;
+        return base;
+      }
+      function parseStored(raw) {
+        if (!raw) return null;
+        try { return sanitizeState(JSON.parse(raw)); } catch (e) { return null; }
+      }
+      // ----- Cookie compact encoding -----
+      function b36(n) { return (Math.max(0, Math.floor(Number(n) || 0))).toString(36); }
+      function unb36(s) { var n = parseInt(s, 36); return isNaN(n) ? 0 : n; }
+      function bytesToB64Url(bytes) {
+        var bin = "";
+        for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      }
+      function b64UrlToBytes(str) {
+        var b64 = String(str).replace(/-/g, "+").replace(/_/g, "/");
+        while (b64.length % 4) b64 += "=";
+        var bin = atob(b64);
+        var bytes = [];
+        for (var i = 0; i < bin.length; i++) bytes.push(bin.charCodeAt(i));
+        return bytes;
+      }
+      function bitmapEncode(count, has) {
+        var bytes = [];
+        var nbytes = Math.ceil(count / 8);
+        for (var i = 0; i < nbytes; i++) bytes.push(0);
+        for (var idx = 0; idx < count; idx++) if (has(idx)) bytes[idx >> 3] |= (1 << (idx & 7));
+        return bytesToB64Url(bytes);
+      }
+      function bitmapDecode(str, count) {
+        var out = [];
+        var bytes = [];
+        try { bytes = b64UrlToBytes(str); } catch (e) { bytes = []; }
+        for (var idx = 0; idx < count; idx++) out.push(!!(bytes[idx >> 3] & (1 << (idx & 7))));
+        return out;
+      }
+      function dateToDays(str) {
+        if (!str) return 0;
+        var parts = String(str).split("-");
+        if (parts.length !== 3) return 0;
+        var ms = Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])) - Date.UTC(2020, 0, 1);
+        var d = Math.round(ms / 86400000);
+        return d >= 0 ? d : 0;
+      }
+      function daysToDate(days) {
+        var d = new Date(Date.UTC(2020, 0, 1) + days * 86400000);
+        function pad(n) { return (n < 10 ? "0" : "") + n; }
+        return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate());
+      }
+      function pad36(n, len) {
+        var s = b36(n);
+        while (s.length < len) s = "0" + s;
+        return s;
+      }
+      function encodeCookieState(st) {
+        var savedMs = st.savedAt ? Date.parse(st.savedAt) : Date.now();
+        if (isNaN(savedMs)) savedMs = Date.now();
+        var att = bitmapEncode(QUESTIONS.length, function (idx) { return !!st.stats[QUESTIONS[idx].id]; });
+        var clr = bitmapEncode(QUESTIONS.length, function (idx) { var s = st.stats[QUESTIONS[idx].id]; return !!(s && s.clearedOnce); });
+        var wl = bitmapEncode(QUESTIONS.length, function (idx) { var s = st.stats[QUESTIONS[idx].id]; return !!(s && s.onWrongList); });
+        var wc = "";
+        var lw = "";
+        for (var i = 0; i < QUESTIONS.length; i++) {
+          var s2 = st.stats[QUESTIONS[i].id];
+          var c = s2 ? Math.min(35, Math.max(0, Math.floor(s2.wrongCount || 0))) : 0;
+          wc += c.toString(36);
+          lw += pad36(s2 && s2.lastWrongAt ? dateToDays(s2.lastWrongAt) + 1 : 0, 3);
+        }
+        var badgeBits = bitmapEncode(BADGES.length, function (idx) { return st.badges.indexOf(BADGES[idx].id) !== -1; });
+        return ["1", b36(savedMs), b36(st.xp), b36(st.totalAnswered), b36(st.totalCorrect), b36(st.bestStreak), b36(st.graduatedCount), st.examPassed ? "1" : "0", att, clr, wl, wc, lw, badgeBits].join(".");
+      }
+      function decodeCookieValue(raw) {
+        if (!raw) return null;
+        try {
+          var f = String(raw).split(".");
+          if (f.length !== 14 || f[0] !== "1") return null;
+          var att = bitmapDecode(f[8], QUESTIONS.length);
+          var clr = bitmapDecode(f[9], QUESTIONS.length);
+          var wl = bitmapDecode(f[10], QUESTIONS.length);
+          var wc = f[11] || "";
+          var lw = f[12] || "";
+          var badgeBits = bitmapDecode(f[13], BADGES.length);
+          var st = emptyState();
+          st.xp = unb36(f[2]); st.totalAnswered = unb36(f[3]); st.totalCorrect = unb36(f[4]);
+          st.bestStreak = unb36(f[5]); st.graduatedCount = unb36(f[6]); st.examPassed = f[7] === "1";
+          var ms = unb36(f[1]);
+          st.savedAt = ms > 0 ? new Date(ms).toISOString() : null;
+          for (var i = 0; i < QUESTIONS.length; i++) {
+            if (!att[i]) continue;
+            var daysVal = unb36(lw.substr(i * 3, 3));
+            st.stats[QUESTIONS[i].id] = {
+              wrongCount: Math.min(35, unb36(wc.charAt(i) || "0")),
+              lastWrongAt: daysVal > 0 ? daysToDate(daysVal - 1) : null,
+              clearedOnce: !!clr[i],
+              onWrongList: !!wl[i]
+            };
+          }
+          st.badges = BADGES.filter(function (b, idx) { return badgeBits[idx]; }).map(function (b) { return b.id; });
+          return sanitizeState(st);
+        } catch (e) { return null; }
+      }
+      // ----- Cookie IO -----
+      function cookiePath() {
+        try {
+          var path = window.location.pathname || "/";
+          if (path.charAt(path.length - 1) !== "/") path = path.slice(0, path.lastIndexOf("/") + 1);
+          return path || "/";
+        } catch (e) { return "/"; }
+      }
+      function readCookieRaw() {
+        try {
+          var parts = String(document.cookie || "").split(";");
+          for (var i = 0; i < parts.length; i++) {
+            var kv = parts[i].trim();
+            if (kv.indexOf(COOKIE_NAME + "=") === 0) return kv.slice(COOKIE_NAME.length + 1);
+          }
+        } catch (e) { /* ignore */ }
+        return null;
+      }
+      function writeCookie(value) {
+        try {
+          lastCookieLength = (COOKIE_NAME + "=" + value).length;
+          if (lastCookieLength >= COOKIE_LIMIT) return false;
+          document.cookie = COOKIE_NAME + "=" + value + "; Max-Age=" + COOKIE_MAX_AGE + "; Path=" + cookiePath() + "; SameSite=Lax";
+          return readCookieRaw() === value; // 読み戻して検証する
+        } catch (e) { return false; }
+      }
+      function deleteCookie() {
+        try { document.cookie = COOKIE_NAME + "=; Max-Age=0; Path=" + cookiePath() + "; SameSite=Lax"; } catch (e) {}
+        try { document.cookie = COOKIE_NAME + "=; Max-Age=0; Path=/; SameSite=Lax"; } catch (e) {}
+      }
+      function savedAtMs(st) { var ms = st && st.savedAt ? Date.parse(st.savedAt) : 0; return isNaN(ms) ? 0 : ms; }
+      function loadState() {
+        var candidates = [];
+        if (storageOK) {
+          try {
+            var s = parseStored(window.localStorage.getItem(STORAGE_KEY));
+            if (s) candidates.push(s);
+            var b = parseStored(window.localStorage.getItem(STORAGE_BACKUP_KEY));
+            if (b) candidates.push(b);
+          } catch (e) { /* fall through */ }
+        }
+        var fromCookie = decodeCookieValue(readCookieRaw());
+        if (fromCookie) candidates.push(fromCookie);
+        if (!candidates.length) {
+          if (!storageOK && !fromCookie) saveStatus = "failed";
+          return emptyState();
+        }
+        candidates.sort(function (a, b2) { return savedAtMs(b2) - savedAtMs(a); });
+        return candidates[0]; // 保存日時が最新のものを採用する
+      }
+      var state = loadState();
+      if (state.savedAt) { lastSavedAt = state.savedAt; if (saveStatus === "unknown") saveStatus = "ok"; }
+      else if (saveStatus === "unknown" && storageOK) saveStatus = "ok";
+      function saveWhereLabel() {
+        if (lsSaveOk && cookieSaveOk) return "ブラウザ＋Cookie";
+        if (cookieSaveOk) return "Cookieのみ保存";
+        if (lsSaveOk) return "ブラウザ保存のみ";
+        return "保存できませんでした";
+      }
+      function saveState() {
+        state.savedAt = new Date().toISOString();
+        // localStorage へ保存（主＋控え、読み戻し検証）
+        if (!storageOK) storageOK = probeStorage(); // 起動時に使えなくても、使えるようになっていれば拾う
+        lsSaveOk = false;
+        if (storageOK) {
+          try {
+            var payload = JSON.stringify(state);
+            window.localStorage.setItem(STORAGE_KEY, payload);
+            try { window.localStorage.setItem(STORAGE_BACKUP_KEY, payload); } catch (e2) { /* 控えは失敗しても主があればよい */ }
+            if (window.localStorage.getItem(STORAGE_KEY) !== payload) throw new Error("verify failed");
+            lsSaveOk = true;
+          } catch (e) { lsSaveOk = false; }
+        }
+        // Cookie へ保存（コンパクト符号化、読み戻し検証、保存のたびに Max-Age を再設定して期限を延長）
+        cookieSaveOk = writeCookie(encodeCookieState(state));
+        saveStatus = (lsSaveOk || cookieSaveOk) ? "ok" : "failed";
+        if (saveStatus === "ok") lastSavedAt = state.savedAt;
+      }
+      // 記録があるのに保存先が片方だけ／古い場合は、開いた時点で両保存先へ同期し直す（Cookie期限の延長も兼ねる）
+      if (state.totalAnswered > 0 || state.xp > 0 || Object.keys(state.stats).length > 0) {
+        saveState();
+      }
+      // ページが閉じられる・隠れる直前にも保存し直し、最後の回答を取りこぼさない
+      window.addEventListener("pagehide", function () { saveState(); });
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") saveState();
+      });
+      // ---------- Backup export / import ----------
+      // ブラウザ保存が使えない・消えてしまう環境でも進捗を持ち運べるよう、
+      // 記録をファイル／コードとして書き出し・読み込みできるようにする。
+      var backupUi = { showCode: false, msg: "", msgOk: true, pending: null };
+      function exportPayload() {
+        return JSON.stringify({ app: "jidou-hattatsu-quest-shared", version: 1, exportedAt: new Date().toISOString(), state: state }, null, 2);
+      }
+      function applyImport(clean) {
+        state = clean;
+        saveState();
+        backupUi.pending = null;
+        backupUi.showCode = false;
+        backupUi.msg = saveStatus === "ok"
+          ? "記録を読み込みました（回答 " + state.totalAnswered + "問・" + state.xp + " XP）。保存先：" + saveWhereLabel() + " で保存しました。"
+          : "記録を読み込みました（回答 " + state.totalAnswered + "問・" + state.xp + " XP）。ただしこの環境ではブラウザ保存もCookieも使えないため、閉じる前にまた書き出してください。";
+        backupUi.msgOk = true;
+      }
+      function tryImport(text) {
+        var parsed = null;
+        try { parsed = JSON.parse(text); } catch (e) { /* handled below */ }
+        var candidate = parsed && typeof parsed === "object" ? (parsed.state ? parsed.state : parsed) : null;
+        var valid = candidate && typeof candidate === "object" && candidate.stats && typeof candidate.stats === "object" &&
+          (typeof candidate.xp === "number" || typeof candidate.totalAnswered === "number");
+        var clean = valid ? sanitizeState(candidate) : null;
+        if (!clean) {
+          backupUi.pending = null;
+          backupUi.msg = "読み込めませんでした。このページで書き出した記録のファイル／コードかどうか確認してください。";
+          backupUi.msgOk = false;
+          render();
+          return;
+        }
+        if (state.totalAnswered > 0) {
+          backupUi.pending = clean; // 今の記録がある場合は、置き換え確認を出す
+          backupUi.msg = "";
+        } else {
+          applyImport(clean);
+        }
+        render();
+      }
+      function statFor(id) {
+        var s = state.stats[id];
+        if (!s) { s = { wrongCount: 0, lastWrongAt: null, clearedOnce: false, onWrongList: false }; state.stats[id] = s; }
+        return s;
+      }
+      function wrongList() {
+        return Object.keys(state.stats)
+          .map(function (k) { return Number(k); })
+          .filter(function (id) { return state.stats[id] && state.stats[id].onWrongList; })
+          .sort(function (a, b) { return a - b; })
+          .map(function (id) {
+            var s = state.stats[id];
+            return { questionId: id, wrongCount: s.wrongCount, lastWrongAt: s.lastWrongAt };
+          });
+      }
+      // 「解いてない問題」= 回答履歴が1回もない問題（state.stats に記録がない問題）。
+      // 回答すると applyAnswer が必ず stats に記録し localStorage に保存されるため、
+      // 再読み込み後もこの判定は保持される。正解・不正解どちらも「挑戦済み」になる。
+      function isAttempted(id) {
+        return Object.prototype.hasOwnProperty.call(state.stats, id);
+      }
+      function unattemptedQuestions() {
+        return QUESTIONS.filter(function (q) { return !isAttempted(q.id); });
+      }
+      function unattemptedCount(ids) {
+        return ids.filter(function (id) { return !isAttempted(id); }).length;
+      }
+      function earnedBadgeIds() {
+        var earned = [];
+        if (state.totalAnswered >= 1) earned.push("first-challenge");
+        if (state.totalCorrect >= 10) earned.push("correct-10");
+        if (state.totalCorrect >= 50) earned.push("correct-50");
+        if (Object.keys(state.stats).length >= QUESTIONS.length) earned.push("all-100");
+        if (state.bestStreak >= 10) earned.push("streak-10");
+        if (state.graduatedCount >= 10) earned.push("review-master");
+        if (state.examPassed) earned.push("exam-pass");
+        CATEGORIES.forEach(function (c) {
+          var ok = c.questionIds.length > 0 && c.questionIds.every(function (id) {
+            var s = state.stats[id];
+            return s && s.clearedOnce;
+          });
+          if (ok) earned.push("category:" + c.name);
+        });
+        return earned;
+      }
+      function refreshBadges() {
+        var before = state.badges.slice();
+        earnedBadgeIds().forEach(function (id) { if (state.badges.indexOf(id) === -1) state.badges.push(id); });
+        return state.badges.filter(function (id) { return before.indexOf(id) === -1; });
+      }
+
+      // ---------- Confetti ----------
+      var CONFETTI_COLORS = ["#e8813a", "#2a9d8f", "#e9c46a", "#c05b7e", "#4a7fb5", "#3e9b6b"];
+      function confettiRain(count) {
+        count = count || 60;
+        var root = document.getElementById("confetti-root");
+        var layer = document.createElement("div");
+        layer.className = "confetti-layer";
+        layer.setAttribute("aria-hidden", "true");
+        var html = "";
+        for (var i = 0; i < count; i++) {
+          var size = 6 + Math.random() * 7;
+          var round = Math.random() > 0.6;
+          html += '<span class="confetti-piece" style="left:' + (Math.random() * 100) + "%;width:" + size + "px;height:" + (round ? size : size * 0.5) + "px;background:" + CONFETTI_COLORS[i % CONFETTI_COLORS.length] + ";border-radius:" + (round ? "50%" : "2px") + ";animation:confetti-fall " + (2.2 + Math.random() * 1.4) + "s ease-in " + (Math.random() * 0.6) + 's both"></span>';
+        }
+        layer.innerHTML = html;
+        root.appendChild(layer);
+        window.setTimeout(function () { layer.remove(); }, 4600);
+      }
+      function confettiBurstHtml() {
+        var html = '<div class="burst-layer" aria-hidden="true">';
+        for (var i = 0; i < 16; i++) {
+          var angle = (i / 16) * Math.PI * 2;
+          var dist = 46 + Math.random() * 42;
+          var size = 5 + Math.random() * 5;
+          html += '<span class="burst-piece" style="width:' + size + "px;height:" + size * 0.6 + "px;background:" + CONFETTI_COLORS[i % CONFETTI_COLORS.length] + ";border-radius:2px;--dx:" + Math.cos(angle) * dist + "px;--dy:" + (Math.sin(angle) * dist - 14) + "px;--rot:" + (Math.random() * 260 - 130) + 'deg;animation:confetti-burst .75s ease-out both"></span>';
+        }
+        return html + "</div>";
+      }
+
+      // ---------- AI explanation panel ----------
+      var aiOpenState = {}; // key -> bool, overrides default
+      function aiPanelHtml(qid, defaultOpen, keyPrefix) {
+        var ai = AI_EXPLANATIONS[qid];
+        if (!ai) return "";
+        var key = keyPrefix + ":" + qid;
+        var open = Object.prototype.hasOwnProperty.call(aiOpenState, key) ? aiOpenState[key] : defaultOpen;
+        var parts = [
+          { label: "やさしく言い換えると", text: ai.plain },
+          { label: "現場の具体例", text: ai.example },
+          { label: "引っかけポイント", text: ai.trap },
+          { label: "覚え方のひとこと", text: ai.mnemonic }
+        ];
+        var body = "";
+        if (open) {
+          body = '<div class="ai-body"><div class="ai-parts">' + parts.map(function (p, i) {
+            return '<div class="ai-part' + (i === parts.length - 1 ? " last" : "") + '"><p class="ai-part-label"><span class="ai-n" aria-hidden="true">' + (i + 1) + '</span>' + esc(p.label) + '</p><p>' + esc(p.text) + "</p></div>";
+          }).join("") + "</div></div>";
+        }
+        return '<section class="ai-panel" aria-label="AIによる追加解説（学習補助の補足）">' +
+          '<button type="button" class="ai-head" data-action="toggle-ai" data-key="' + esc(key) + '" aria-expanded="' + open + '">' +
+          '<span class="ai-ic">' + icon("sparkles", 17) + "</span>" +
+          '<span style="flex:1;min-width:0"><span class="ai-t font-round">AIによる追加解説（学習補助の補足）</span>' +
+          '<span class="ai-s">上の「解説」とは別に、理解を助けるための補足です</span></span>' +
+          '<span class="ai-chev' + (open ? " open" : "") + '">' + icon("chevronDown", 20) + "</span>" +
+          "</button>" + body + "</section>";
+      }
+
+      // ---------- App state ----------
+      var app = document.getElementById("app");
+      var view = "home"; // home | quiz | result | wrongList
+      var session = null; // {mode,title,categoryName,questions}
+      var quiz = null; // {index,picked,results,xpEarned,bestStreak,leveledUp,newBadges}
+      var summary = null; // {session,results,xpEarned,bestStreak}
+      var resetConfirming = false;
+      var wrongOpenId = null;
+      var catUnattemptedOnly = false; // カテゴリー別「解いてない問題だけ」トグル（画面上だけの状態）
+      var randomUnattemptedOnly = false; // ランダム10問「解いてない問題から出題」トグル（同上）
+
+      function buildSession(mode, categoryName, options) {
+        var unOnly = !!(options && options.unattemptedOnly);
+        if (mode === "sequential") return { mode: mode, title: MODE_LABELS.sequential, questions: QUESTIONS.slice() };
+        if (mode === "unattempted") return { mode: mode, title: MODE_LABELS.unattempted, unattemptedOnly: true, questions: unattemptedQuestions() };
+        if (mode === "category") {
+          var cat = null;
+          CATEGORIES.forEach(function (c) { if (c.name === categoryName) cat = c; });
+          if (!cat) cat = CATEGORIES[0];
+          var catIds = unOnly ? cat.questionIds.filter(function (id) { return !isAttempted(id); }) : cat.questionIds;
+          return { mode: mode, title: (unOnly ? "カテゴリー別（未挑戦のみ）：" : "カテゴリー別：") + cat.name, categoryName: cat.name, unattemptedOnly: unOnly, questions: catIds.map(function (id) { return QBYID[id]; }) };
+        }
+        if (mode === "random10") {
+          var pool = unOnly ? unattemptedQuestions() : QUESTIONS;
+          return { mode: mode, title: unOnly ? MODE_LABELS.random10 + "（未挑戦のみ）" : MODE_LABELS.random10, unattemptedOnly: unOnly, questions: shuffle(pool).slice(0, 10) };
+        }
+        if (mode === "randomAll") return { mode: mode, title: MODE_LABELS.randomAll, questions: shuffle(QUESTIONS) };
+        if (mode === "review") {
+          var ids = wrongList().map(function (w) { return w.questionId; });
+          return { mode: mode, title: MODE_LABELS.review, questions: ids.map(function (id) { return QBYID[id]; }) };
+        }
+        if (mode === "exam") return { mode: mode, title: MODE_LABELS.exam, questions: shuffle(QUESTIONS).slice(0, EXAM_QUESTIONS) };
+        return { mode: mode, title: "", questions: [] };
+      }
+
+      function startSession(s) {
+        if (!s.questions.length) return;
+        session = s;
+        quiz = { index: 0, picked: null, results: [], xpEarned: 0, bestStreak: 0, streak: 0, leveledUp: false, newBadges: [], burst: 0, startLevel: levelProgress(state.xp).level };
+        summary = null;
+        view = "quiz";
+        render();
+        window.scrollTo(0, 0);
+      }
+
+      // Apply one answer immediately (same XP rules as the original server).
+      function applyAnswer(q, correct) {
+        var st = statFor(q.id);
+        var xp = 0;
+        state.totalAnswered += 1;
+        if (correct) {
+          state.totalCorrect += 1;
+          quiz.streak += 1;
+          quiz.bestStreak = Math.max(quiz.bestStreak, quiz.streak);
+          state.bestStreak = Math.max(state.bestStreak, quiz.streak);
+          var graduating = session.mode === "review" && st.onWrongList;
+          xp = graduating ? 15 : 10;
+          if (quiz.streak === 5) xp += 10;
+          if (quiz.streak === 10) xp += 30;
+          st.clearedOnce = true;
+          if (graduating) { st.onWrongList = false; state.graduatedCount += 1; }
+        } else {
+          quiz.streak = 0;
+          st.wrongCount += 1;
+          st.lastWrongAt = todayTokyo();
+          st.onWrongList = true;
+        }
+        state.xp += xp;
+        quiz.xpEarned += xp;
+        if (levelProgress(state.xp).level > quiz.startLevel) quiz.leveledUp = true;
+        var nb = refreshBadges();
+        nb.forEach(function (id) { if (quiz.newBadges.indexOf(id) === -1) quiz.newBadges.push(id); });
+        saveState();
+        return xp;
+      }
+
+      function finishSession() {
+        var results = quiz.results.slice();
+        if (session.mode === "exam") {
+          var correct = results.filter(function (r) { return r.correct; }).length;
+          if (correct >= EXAM_PASS_LINE && !state.examPassed) {
+            state.examPassed = true;
+            var nb = refreshBadges();
+            nb.forEach(function (id) { if (quiz.newBadges.indexOf(id) === -1) quiz.newBadges.push(id); });
+            saveState();
+          }
+        }
+        summary = {
+          session: session,
+          results: results,
+          xpEarned: quiz.xpEarned,
+          bestStreak: quiz.bestStreak,
+          leveledUp: quiz.leveledUp,
+          newBadges: quiz.newBadges.slice()
+        };
+        var celebrateNow = quiz.leveledUp || (session.mode === "exam" && results.filter(function (r) { return r.correct; }).length >= EXAM_PASS_LINE);
+        session = null;
+        quiz = null;
+        view = "result";
+        render();
+        window.scrollTo(0, 0);
+        if (celebrateNow) confettiRain(70);
+      }
+
+      // ---------- Views ----------
+      function formatSavedAt(iso) {
+        if (!iso) return "";
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        function pad(n) { return (n < 10 ? "0" : "") + n; }
+        return (d.getMonth() + 1) + "月" + d.getDate() + "日 " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+      }
+      function saveStatusHtml() {
+        var note = "Cookieとブラウザ保存の両方で記録を保持します。ブラウザのデータを消すと記録も消えます。大事な進捗はバックアップ書き出しもおすすめです。";
+        if (saveStatus === "failed") {
+          return '<div class="save-box failed" role="alert"><span aria-hidden="true">' + icon("x", 18) + '</span><span><strong>記録を保存できていません。</strong>ブラウザ保存もCookieも使えませんでした（アプリ内ブラウザ・埋め込み表示・プライベートモードなどでは保存できないことがあります）。このまま閉じると進捗が消えてしまいます。下の「設定」にある「記録のバックアップ」から書き出しておくと、あとで読み込んで続きから再開できます。</span></div>';
+        }
+        if (!lastSavedAt) {
+          return '<p class="storage-note">' + icon("check", 13) + " " + note + "</p>";
+        }
+        var when = "（最終保存：" + formatSavedAt(lastSavedAt) + "）";
+        var where = saveWhereLabel();
+        var warn = "";
+        if (lsSaveOk && !cookieSaveOk) {
+          warn = '<p class="storage-note" style="color:var(--bad);font-weight:700">Cookieには保存できませんでした。ブラウザがCookieを拒否したか、Cookieが削除された可能性があります（ブラウザ保存には保存できています）。</p>';
+        } else if (!lsSaveOk && cookieSaveOk) {
+          warn = '<p class="storage-note" style="color:var(--bad);font-weight:700">ブラウザ保存（localStorage）には保存できませんでした（Cookieには保存できています）。</p>';
+        }
+        return '<p class="storage-note">' + icon("check", 13) + " 保存済み（" + where + "）" + when + "<br>" + note + "</p>" + warn;
+      }
+      function modeCardHtml(iconName, color, title, desc, action, arg, disabled) {
+        return '<button type="button" class="mode-card card font-round" data-action="' + action + '"' + (arg ? ' data-arg="' + esc(arg) + '"' : "") + (disabled ? " disabled" : "") + ' aria-label="' + esc(title) + '">' +
+          '<span class="mode-icon" style="background:' + color + '">' + icon(iconName, 24) + "</span>" +
+          '<span style="flex:1;min-width:0"><span class="t">' + esc(title) + '</span><span class="d">' + esc(desc) + "</span></span>" +
+          '<span class="chev">' + icon("chevron", 20) + "</span></button>";
+      }
+      function toggleHtml(action, checked, title, desc) {
+        return '<div class="toggle-card card"><span style="flex:1;min-width:0"><span class="tt font-round">' + esc(title) + '</span><span class="td">' + esc(desc) + '</span></span>' +
+          '<button type="button" class="switch" role="switch" aria-checked="' + (checked ? "true" : "false") + '" data-action="' + action + '" aria-label="' + esc(title) + '"><span class="knob" aria-hidden="true"></span></button></div>';
+      }
+      function homeHtml() {
+        var lp = levelProgress(state.xp);
+        var accuracy = state.totalAnswered > 0 ? Math.round(state.totalCorrect / state.totalAnswered * 100) : null;
+        var wl = wrongList();
+        var attemptedCount = QUESTIONS.length - unattemptedQuestions().length;
+        var unLeft = QUESTIONS.length - attemptedCount;
+        var cleared = {};
+        Object.keys(state.stats).forEach(function (k) { if (state.stats[k].clearedOnce) cleared[k] = true; });
+        var stats = [
+          { label: "総回答数", value: String(state.totalAnswered) },
+          { label: "正解率", value: accuracy === null ? "—" : accuracy + "%" },
+          { label: "連続正解記録", value: String(state.bestStreak) },
+          { label: "卒業した問題", value: String(state.graduatedCount) }
+        ];
+        var h = '<div class="animate-rise">';
+        // Status panel
+        h += '<section class="card status-panel"><div class="status-flex">' +
+          '<div class="level-badge"><div><div class="lv-label font-round">LEVEL</div><div class="lv-num font-round">' + lp.level + "</div></div></div>" +
+          '<div style="flex:1;min-width:0"><p class="font-round" style="font-size:18px;font-weight:700">しんぽうの冒険者</p>' +
+          '<div class="bar-track" style="margin-top:.5rem;height:16px" role="progressbar" aria-valuenow="' + lp.intoLevel + '" aria-valuemin="0" aria-valuemax="' + lp.span + '" aria-label="次のレベルまでの経験値"><div class="bar-fill" style="width:' + Math.min(100, lp.intoLevel / lp.span * 100) + '%"></div></div>' +
+          '<p style="margin-top:.375rem;font-size:14px;color:var(--dim)">' + state.xp + " XP ・ 次のレベルまで あと " + lp.toNext + " XP</p></div></div>" +
+          '<div class="stat-grid">' + stats.map(function (s) {
+            return '<div class="stat-cell"><div class="v font-round">' + esc(s.value) + '</div><div class="l">' + esc(s.label) + "</div></div>";
+          }).join("") + "</div>" +
+          '<div class="attempt-row"><div class="attempt-nums"><span>挑戦済み <span class="n font-round">' + attemptedCount + '問</span></span><span>未挑戦 <span class="n font-round">' + unLeft + '問</span></span></div>' +
+          '<div class="bar-track attempt-bar" role="progressbar" aria-valuenow="' + attemptedCount + '" aria-valuemin="0" aria-valuemax="' + QUESTIONS.length + '" aria-label="全問題への挑戦状況"><div class="bar-fill" style="width:' + Math.round(attemptedCount / QUESTIONS.length * 100) + '%"></div></div>' +
+          '<p style="margin-top:.375rem;font-size:12px;color:var(--dim)">全' + QUESTIONS.length + '問中、' + attemptedCount + '問に挑戦済み・' + unLeft + '問が未挑戦です</p></div>' +
+          '<button type="button" class="wrong-link" data-action="open-wrong" aria-label="間違えた問題 ' + wl.length + '問の一覧を開く">' +
+          '<span class="font-round" style="font-weight:700;color:var(--bad)">間違えた問題 ' + wl.length + "問</span>" +
+          '<span style="display:flex;align-items:center;gap:.25rem;font-size:14px;color:var(--dim)">' + (wl.length > 0 ? "一覧と復習はこちら" : "一覧を見る") + icon("chevron", 18) + "</span></button>" +
+          saveStatusHtml() +
+          "</section>";
+        // Modes
+        h += '<h2 class="section-title font-round">クエストを選ぶ</h2><div class="stack">' +
+          modeCardHtml("list", "#e8813a", "順番に挑戦", "問題1から100まで順番に進める基本コース", "start", "sequential", false) +
+          modeCardHtml("target", "#27807a", "未挑戦の問題だけ", unLeft > 0 ? "まだ解いていない問題を番号順に出題。未挑戦 残り " + unLeft + "問" : "全問挑戦済みです", "start", "unattempted", unLeft === 0) +
+          modeCardHtml("shuffle", "#4a7fb5", "ランダム10問", randomUnattemptedOnly ? (unLeft > 0 ? "未挑戦の問題からランダムに最大10問（残り " + unLeft + "問）" : "全問挑戦済みです") : "全100問からランダムに10問。すきま時間に", "start", "random10", randomUnattemptedOnly && unLeft === 0) +
+          toggleHtml("toggle-random-unattempted", randomUnattemptedOnly, "解いてない問題から出題", "ONにすると、ランダム10問はまだ解いていない問題だけから出題されます") +
+          modeCardHtml("shuffle", "#2a9d8f", "ランダム全問シャッフル", "全100問をシャッフルして総仕上げ", "start", "randomAll", false) +
+          modeCardHtml("refresh", "#3e9b6b", "間違えた問題の復習", wl.length > 0 ? "いま " + wl.length + "問 が復習待ち。正解すると卒業できます" : "間違えた問題はまだありません", "start", "review", wl.length === 0) +
+          modeCardHtml("clipboard", "#c05b7e", "本番モード", "ランダム50問に挑戦。" + EXAM_PASS_LINE + "問以上で合格！", "start", "exam", false) +
+          "</div>";
+        // Categories
+        h += '<h2 class="section-title font-round">カテゴリー別に挑戦</h2><div style="margin-top:.75rem">' +
+          toggleHtml("toggle-cat-unattempted", catUnattemptedOnly, "解いてない問題だけ", "ONにすると、各カテゴリーでまだ解いていない問題だけが出題されます") +
+          '</div><div class="stack">' + CATEGORIES.map(function (c) {
+          var n = c.questionIds.filter(function (id) { return cleared[id]; }).length;
+          var pct = Math.round(n / c.questionIds.length * 100);
+          var remain = unattemptedCount(c.questionIds);
+          var noUn = catUnattemptedOnly && remain === 0;
+          return '<button type="button" class="cat-card card" data-action="start-category" data-arg="' + esc(c.name) + '"' + (noUn ? " disabled" : "") + ' aria-label="' + esc(c.name) + "（全" + c.questionIds.length + '問）の問題に挑戦する">' +
+            '<span class="cat-head"><span class="cat-name font-round"><span class="cat-dot" style="background:' + c.color + '" aria-hidden="true"></span>' + esc(c.name) + "</span>" +
+            '<span class="cat-rate">制覇率 ' + pct + "%" + icon("chevron", 16) + "</span></span>" +
+            '<span class="bar-track cat-bar" style="display:block"><span class="bar-fill" style="display:block;width:' + pct + "%;background:" + c.color + '"></span></span>' +
+            '<span class="cat-sub" style="display:block">正解したことのある問題 ' + n + " / " + c.questionIds.length + "問" + (pct === 100 ? '<span class="done font-round" style="color:' + c.color + '">制覇！</span>' : "") + "</span>" +
+            '<span class="cat-sub" style="display:block">未挑戦 残り <span class="remain">' + remain + "問</span>" + (remain === 0 ? "（全問挑戦済みです）" : "") + "</span></button>";
+        }).join("") + "</div>";
+        // Badges
+        var earnedSet = {};
+        state.badges.forEach(function (id) { earnedSet[id] = true; });
+        h += '<h2 class="section-title font-round">バッジコレクション<span class="sub">' + state.badges.length + " / " + BADGES.length + '</span></h2><div class="badge-grid">' + BADGES.map(function (b) {
+          var earned = !!earnedSet[b.id];
+          return '<div class="badge-cell card"><div class="badge-circle" style="background:' + (earned ? b.color : "var(--surface-alt)") + ";color:" + (earned ? "#fff" : "var(--dim)") + ";opacity:" + (earned ? 1 : 0.55) + (earned ? "" : ";filter:grayscale(1)") + '">' + icon(earned ? b.icon : "lock", 26) + '</div>' +
+            '<p class="badge-name font-round"' + (earned ? "" : ' style="color:var(--dim)"') + ">" + esc(b.name) + '</p><p class="badge-cond">' + esc(b.condition) + "</p></div>";
+        }).join("") + "</div>";
+        // Settings
+        h += '<section class="settings"><h2>' + icon("gear", 18) + "設定</h2>";
+        // Backup export / import
+        h += '<div class="backup-box"><p class="font-round" style="font-weight:800">記録のバックアップ</p>' +
+          '<p style="margin-top:.375rem;font-size:14px;line-height:1.7;color:var(--dim)">ブラウザの記録が消えてしまったときや、別の端末で続きをしたいときのために、学習記録を書き出しておけます。書き出した記録は下の「読み込む」からいつでも復元できます。</p>' +
+          '<div class="btn-row">' +
+          '<button type="button" class="btn-ghost font-round" data-action="export-file">' + icon("download", 17) + 'ファイルに書き出す</button>' +
+          '<button type="button" class="btn-ghost font-round" data-action="export-code">' + icon("clipboard", 17) + (backupUi.showCode ? "コードを閉じる" : "コードで書き出す") + "</button></div>" +
+          (backupUi.showCode
+            ? '<textarea id="export-code" class="code-area" readonly rows="5" aria-label="記録コード（書き出し用）">' + esc(exportPayload()) + "</textarea>" +
+              '<div class="btn-row"><button type="button" class="btn-ghost font-round" data-action="copy-code">コードをコピー</button></div>'
+            : "") +
+          '<p class="font-round" style="margin-top:1rem;font-weight:800">記録を読み込む</p>' +
+          '<div class="btn-row"><label class="btn-ghost font-round file-label" for="import-file">' + icon("upload", 17) + 'ファイルから読み込む</label></div>' +
+          '<input type="file" id="import-file" class="file-input" accept=".json,application/json" />' +
+          '<textarea id="import-code" class="code-area" rows="4" placeholder="書き出した記録コードをここに貼り付け" aria-label="記録コード（読み込み用）"></textarea>' +
+          '<div class="btn-row"><button type="button" class="btn-ghost font-round" data-action="import-text">コードから読み込む</button></div>' +
+          (backupUi.msg ? '<p class="backup-msg ' + (backupUi.msgOk ? "ok" : "ng") + '" role="status">' + esc(backupUi.msg) + "</p>" : "") +
+          "</div>";
+        if (backupUi.pending) {
+          h += '<div class="reset-confirm"><p>現在の記録（回答 ' + state.totalAnswered + "問・" + state.xp + " XP）を、読み込んだ記録（回答 " + backupUi.pending.totalAnswered + "問・" + backupUi.pending.xp + " XP）で置き換えますか？今の記録は元に戻せません。</p>" +
+            '<div class="btn-row"><button type="button" class="btn-danger font-round" data-action="import-confirm">置き換えて読み込む</button>' +
+            '<button type="button" class="btn-ghost font-round" data-action="import-cancel">キャンセル</button></div></div>';
+        }
+        if (!resetConfirming) {
+          h += '<button type="button" class="reset-btn font-round" data-action="reset-ask">' + icon("trash", 18) + "学習データをリセット</button>";
+        } else {
+          h += '<div class="reset-confirm"><p>XP・レベル・バッジ・間違えた問題の記録など、すべての学習データを消去します。元に戻せません。本当にリセットしますか？</p>' +
+            '<div class="btn-row"><button type="button" class="btn-danger font-round" data-action="reset-do">リセットする</button>' +
+            '<button type="button" class="btn-ghost font-round" data-action="reset-cancel">キャンセル</button></div></div>';
+        }
+        h += "</section></div>";
+        return h;
+      }
+
+      function quizHtml() {
+        var q = session.questions[quiz.index];
+        var total = session.questions.length;
+        var answered = quiz.picked !== null;
+        var correctCount = quiz.results.filter(function (r) { return r.correct; }).length;
+        var rate = quiz.results.length > 0 ? Math.round(correctCount / quiz.results.length * 100) : null;
+        var progressPct = Math.round((quiz.index + (answered ? 1 : 0)) / total * 100);
+        var st = state.stats[q.id];
+        var graduating = session.mode === "review" && quiz.picked === null && st && st.onWrongList;
+        // Note: graduating badge shown pre-answer based on list membership at question start.
+        var h = '<div class="animate-rise">';
+        h += '<div class="quiz-head"><p class="quiz-title font-round">' + esc(session.title) + '</p>' +
+          '<button type="button" class="quit-btn" data-action="quit">' + (quiz.results.length > 0 ? "終了して結果を見る" : "やめる") + "</button></div>";
+        h += '<div class="quiz-progress"><span class="cnt font-round">' + (quiz.index + 1) + " / " + total + '問</span>' +
+          '<div class="bar-track track" role="progressbar" aria-valuenow="' + (quiz.index + (answered ? 1 : 0)) + '" aria-valuemin="0" aria-valuemax="' + total + '" aria-label="進捗"><div class="bar-fill" style="width:' + progressPct + '%"></div></div>' +
+          '<span class="rate">正解率 ' + (rate === null ? "—" : rate + "%") + "</span></div>";
+        if (quiz.streak >= 2) {
+          h += '<p class="streak-pill">' + icon("flame", 16) + quiz.streak + "連続正解中！" +
+            (quiz.streak === 4 ? " あと1問でコンボボーナス" : "") +
+            (quiz.streak === 9 ? " あと1問で大きなコンボボーナス" : "") + "</p>";
+        }
+        h += '<section class="card q-card"><div class="q-meta">' +
+          '<span class="q-cat" style="background:' + catColor(q.category) + '">' + esc(q.category) + "</span>" +
+          '<span class="q-num">問題 ' + q.id + "</span>" +
+          (graduating ? '<span class="q-grad">復習中：正解で卒業！</span>' : "") +
+          "</div>" +
+          '<h2 class="q-text">' + esc(q.question) + "</h2>" +
+          '<div class="choices">' + q.choices.map(function (choice, i) {
+            var cls = "choice";
+            var mark = String(i + 1);
+            if (answered) {
+              if (i === q.answer) { cls += " is-answer"; mark = icon("check", 16); }
+              else if (i === quiz.picked) { cls += " is-picked-wrong"; mark = icon("x", 16); }
+              else cls += " is-dim";
+            }
+            return '<button type="button" class="' + cls + '" data-action="pick" data-arg="' + i + '"' + (answered ? " disabled" : "") + ' aria-label="選択肢' + (i + 1) + "：" + esc(choice) + '"><span class="mark font-round">' + mark + '</span><span style="flex:1">' + esc(choice) + "</span></button>";
+          }).join("") + "</div>";
+        if (answered) {
+          var isCorrect = quiz.picked === q.answer;
+          var lastResult = quiz.results[quiz.results.length - 1];
+          var xp = lastResult ? lastResult.xp : 0;
+          var wasGraduating = lastResult ? lastResult.graduating : false;
+          h += '<div class="feedback animate-rise">' + (isCorrect && quiz.burst > 0 ? confettiBurstHtml() : "") +
+            '<div class="feedback-box ' + (isCorrect ? "ok" : "ng") + '" role="status">' +
+            '<p class="feedback-title font-round ' + (isCorrect ? "ok" : "ng") + '">' +
+            (isCorrect
+              ? icon("check", 22) + "正解！<span class=\"xp-pill\">+" + xp + " XP</span>" + (wasGraduating ? '<span class="grad-pill">卒業！</span>' : "")
+              : icon("x", 22) + "残念… 正解は「" + esc(q.choices[q.answer]) + "」") +
+            "</p>" +
+            (!isCorrect ? '<p class="feedback-note">この問題は「間違えた問題」に記録されました。復習モードでやり直せます。</p>' : "") +
+            (saveStatus === "failed"
+              ? '<p class="feedback-note" style="color:var(--bad);font-weight:700">記録を保存できませんでした（ブラウザ保存・Cookieの両方）。このまま閉じると進捗が消えてしまいます。終わったらホームの「設定」から記録を書き出してください。</p>'
+              : '<p class="feedback-note">' + icon("check", 13) + " 記録を保存しました（" + saveWhereLabel() + "）</p>") +
+            '<div class="expl-block"><p class="expl-label">' + icon("book", 16) + '問題集の解説</p><p class="expl-text">' + esc(q.explanation) + "</p></div>" +
+            "</div>" +
+            aiPanelHtml(q.id, !isCorrect, "quiz-" + session.mode + "-" + quiz.index) +
+            '<button type="button" class="next-btn font-round" data-action="next">' + (quiz.index + 1 >= total ? "結果を見る" : "次の問題へ") + "</button>" +
+            "</div>";
+        }
+        h += "</section></div>";
+        return h;
+      }
+
+      function resultHtml() {
+        var s = summary;
+        var total = s.results.length;
+        var correct = s.results.filter(function (r) { return r.correct; }).length;
+        var rate = total > 0 ? Math.round(correct / total * 100) : 0;
+        var wrongIds = s.results.filter(function (r) { return !r.correct; }).map(function (r) { return r.questionId; });
+        var isExam = s.session.mode === "exam";
+        var examPassed = isExam && correct >= EXAM_PASS_LINE;
+        var lp = levelProgress(state.xp);
+        var newDefs = BADGES.filter(function (b) { return s.newBadges.indexOf(b.id) !== -1; });
+        var h = '<div class="result-wrap animate-rise"><p class="result-kicker font-round">' + esc(s.session.title) + " ・ 結果</p>";
+        if (isExam) {
+          h += '<div class="animate-pop"><p class="result-big font-round ' + (examPassed ? "ok" : "ng") + '">' + (examPassed ? "合格！" : "不合格") + '</p>' +
+            '<p class="result-sub">合格ラインは ' + EXAM_QUESTIONS + "問中 " + EXAM_PASS_LINE + "問以上" + (!examPassed ? "（あと " + (EXAM_PASS_LINE - correct) + "問で合格ライン）" : "") + "</p></div>";
+        } else {
+          h += '<p class="result-big font-round animate-pop">' + (rate >= 80 ? "すばらしい！" : rate >= 50 ? "よくがんばった！" : "おつかれさま！") + "</p>";
+        }
+        if (s.leveledUp) {
+          h += '<div class="levelup-box animate-pop"><span class="levelup-ic">' + icon("sparkles", 24) + '</span><div><p class="font-round" style="font-size:18px;font-weight:800">レベルアップ！ Lv.' + lp.level + ' になりました</p><p style="font-size:14px;color:var(--dim)">次のレベルまで あと ' + lp.toNext + " XP</p></div></div>";
+        }
+        if (newDefs.length > 0) {
+          h += '<div class="newbadges"><p class="font-round" style="font-weight:800">新しいバッジを獲得！</p>' + newDefs.map(function (b) {
+            return '<p class="nb-row"><span class="nb-ic" style="background:' + b.color + '">' + icon(b.icon, 18) + '</span><span class="font-round" style="font-weight:700">' + esc(b.name) + "</span></p>";
+          }).join("") + "</div>";
+        }
+        h += '<section class="card result-stats"><div class="result-grid">' +
+          '<div class="result-cell"><div class="v font-round">' + correct + ' <small>/ ' + total + '問</small></div><div class="l">正解数</div></div>' +
+          '<div class="result-cell"><div class="v font-round">' + rate + '%</div><div class="l">正解率</div></div>' +
+          '<div class="result-cell"><div class="v font-round" style="color:var(--accent)">+' + s.xpEarned + ' XP</div><div class="l">獲得XP</div></div>' +
+          '<div class="result-cell"><div class="v font-round" style="display:flex;align-items:center;justify-content:center;gap:.25rem"><span style="color:var(--bad)">' + icon("flame", 20) + "</span>" + s.bestStreak + '</div><div class="l">連続正解記録</div></div>' +
+          "</div>" +
+          '<div style="margin-top:1rem"><div style="display:flex;align-items:center;justify-content:space-between;font-size:14px"><span class="font-round" style="font-weight:700">Lv.' + lp.level + '</span><span style="color:var(--dim)">' + state.xp + " XP ・ 次まで あと " + lp.toNext + ' XP</span></div>' +
+          '<div class="bar-track" style="margin-top:.375rem;height:14px"><div class="bar-fill" style="width:' + Math.min(100, lp.intoLevel / lp.span * 100) + '%"></div></div></div>' +
+          "</section>";
+        var retryEmpty = false;
+        if (s.session.unattemptedOnly) {
+          if (s.session.mode === "category" && s.session.categoryName) {
+            var rcat = null;
+            CATEGORIES.forEach(function (c) { if (c.name === s.session.categoryName) rcat = c; });
+            retryEmpty = !rcat || unattemptedCount(rcat.questionIds) === 0;
+          } else {
+            retryEmpty = unattemptedQuestions().length === 0;
+          }
+        }
+        if (saveStatus === "failed") h += saveStatusHtml();
+        h += '<div class="result-actions">';
+        if (wrongIds.length > 0) {
+          h += '<button type="button" class="btn-review font-round" data-action="review-wrongs" data-arg="' + wrongIds.join(",") + '">' + icon("refresh", 20) + "間違えた" + wrongIds.length + "問を復習する</button>";
+        }
+        h += '<button type="button" class="btn-retry font-round" data-action="retry"' + (retryEmpty ? " disabled" : "") + ">" + (retryEmpty ? "未挑戦の問題はありません（全問挑戦済みです）" : "もう一度このモードに挑戦") + "</button>" +
+          '<button type="button" class="btn-home font-round" data-action="home">' + icon("home", 19) + "ホームに戻る</button></div></div>";
+        return h;
+      }
+
+      function wrongListHtml() {
+        var items = wrongList();
+        var h = '<div class="animate-rise"><div class="wrong-head">' +
+          '<button type="button" class="back-btn" data-action="home" aria-label="ホームに戻る">' + icon("back", 18) + '戻る</button>' +
+          '<h2 class="font-round">間違えた問題 ' + items.length + "問</h2></div>";
+        if (items.length === 0) {
+          h += '<div class="empty-box"><p class="t font-round">間違えた問題はまだありません</p>' +
+            '<p class="d">問題に挑戦して間違えると、ここに自動で記録されます。復習モードで正解すると「卒業」して、この一覧から外れます。</p></div>';
+        } else {
+          h += '<button type="button" class="btn-review font-round" style="margin-top:1rem" data-action="start" data-arg="review">' + icon("refresh", 20) + "この" + items.length + "問を復習する</button>" +
+            '<div class="stack" style="margin-top:1rem">' + items.map(function (w) {
+              var q = QBYID[w.questionId];
+              var open = wrongOpenId === q.id;
+              var detail = "";
+              if (open) {
+                detail = '<div class="wrong-detail animate-rise"><div class="answer-box">' +
+                  '<p class="answer-line">' + icon("check", 16) + "正解は「" + esc(q.choices[q.answer]) + "」</p>" +
+                  '<div class="expl-block"><p class="expl-label">' + icon("book", 16) + '問題集の解説</p><p class="expl-text">' + esc(q.explanation) + "</p></div></div>" +
+                  aiPanelHtml(q.id, true, "wrong") +
+                  "</div>";
+              }
+              return '<article class="wrong-item card"><div class="wrong-meta">' +
+                '<span class="q-cat" style="background:' + catColor(q.category) + '">' + esc(q.category) + "</span>" +
+                '<span class="q-num">問題 ' + q.id + "</span>" +
+                '<span class="wc">' + w.wrongCount + "回間違えた</span>" +
+                (w.lastWrongAt ? '<span class="date">最後：' + esc(formatDate(w.lastWrongAt)) + "</span>" : "") +
+                "</div>" +
+                '<p class="wrong-q">' + esc(q.question) + "</p>" +
+                '<button type="button" class="toggle-btn font-round" data-action="toggle-wrong" data-arg="' + q.id + '" aria-expanded="' + open + '">' + (open ? "解説を閉じる" : "正解と解説を見る") + '<span class="chev' + (open ? " open" : "") + '">' + icon("chevronDown", 17) + "</span></button>" +
+                detail + "</article>";
+            }).join("") + "</div>";
+        }
+        return h + "</div>";
+      }
+
+      function render() {
+        if (view === "quiz" && session && quiz) app.innerHTML = quizHtml();
+        else if (view === "result" && summary) app.innerHTML = resultHtml();
+        else if (view === "wrongList") app.innerHTML = wrongListHtml();
+        else app.innerHTML = homeHtml();
+      }
+
+      // ---------- Events ----------
+      document.addEventListener("click", function (ev) {
+        var el = ev.target.closest("[data-action]");
+        if (!el) return;
+        var action = el.getAttribute("data-action");
+        var arg = el.getAttribute("data-arg");
+        if (action === "start") {
+          if (arg === "random10") startSession(buildSession("random10", null, { unattemptedOnly: randomUnattemptedOnly }));
+          else startSession(buildSession(arg));
+        } else if (action === "start-category") {
+          startSession(buildSession("category", arg, { unattemptedOnly: catUnattemptedOnly }));
+        } else if (action === "toggle-cat-unattempted") {
+          catUnattemptedOnly = !catUnattemptedOnly; render();
+        } else if (action === "toggle-random-unattempted") {
+          randomUnattemptedOnly = !randomUnattemptedOnly; render();
+        } else if (action === "open-wrong") {
+          view = "wrongList"; wrongOpenId = null; render(); window.scrollTo(0, 0);
+        } else if (action === "home") {
+          view = "home"; session = null; quiz = null; summary = null; resetConfirming = false; render(); window.scrollTo(0, 0);
+        } else if (action === "pick") {
+          if (!session || !quiz || quiz.picked !== null) return;
+          var q = session.questions[quiz.index];
+          var picked = Number(arg);
+          var wasOnList = !!(state.stats[q.id] && state.stats[q.id].onWrongList);
+          var correct = picked === q.answer;
+          quiz.picked = picked;
+          var xp = applyAnswer(q, correct);
+          quiz.results.push({ questionId: q.id, correct: correct, xp: xp, graduating: correct && session.mode === "review" && wasOnList });
+          if (correct) quiz.burst += 1;
+          render();
+        } else if (action === "next") {
+          if (!session || !quiz) return;
+          if (quiz.index + 1 >= session.questions.length) finishSession();
+          else { quiz.index += 1; quiz.picked = null; render(); window.scrollTo(0, 0); }
+        } else if (action === "quit") {
+          if (!session || !quiz) { view = "home"; render(); return; }
+          if (quiz.results.length === 0) { session = null; quiz = null; view = "home"; render(); window.scrollTo(0, 0); }
+          else finishSession();
+        } else if (action === "review-wrongs") {
+          var ids = arg.split(",").map(Number).filter(function (id) { return QBYID[id]; });
+          if (ids.length) startSession({ mode: "review", title: MODE_LABELS.review, questions: ids.map(function (id) { return QBYID[id]; }) });
+        } else if (action === "retry") {
+          if (summary) startSession(buildSession(summary.session.mode, summary.session.categoryName, { unattemptedOnly: !!summary.session.unattemptedOnly }));
+        } else if (action === "toggle-wrong") {
+          var id = Number(arg);
+          wrongOpenId = wrongOpenId === id ? null : id;
+          render();
+        } else if (action === "toggle-ai") {
+          var key = el.getAttribute("data-key");
+          var panel = el.closest(".ai-panel");
+          var qid = Number(key.split(":").pop());
+          var prefix = key.slice(0, key.length - String(qid).length - 1);
+          // Determine current open state from DOM
+          var isOpen = el.getAttribute("aria-expanded") === "true";
+          aiOpenState[key] = !isOpen;
+          render();
+        } else if (action === "reset-ask") {
+          resetConfirming = true; render();
+        } else if (action === "reset-cancel") {
+          resetConfirming = false; render();
+        } else if (action === "export-file") {
+          try {
+            var blob = new Blob([exportPayload()], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "gakushu-kiroku-backup.json";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+            backupUi.msg = "記録ファイルを書き出しました。なくさないよう保管してください。";
+            backupUi.msgOk = true;
+          } catch (e) {
+            backupUi.showCode = true;
+            backupUi.msg = "ファイルへの書き出しができませんでした。下の「コードで書き出す」から記録コードをコピーして保管してください。";
+            backupUi.msgOk = false;
+          }
+          render();
+        } else if (action === "export-code") {
+          backupUi.showCode = !backupUi.showCode;
+          render();
+        } else if (action === "copy-code") {
+          var codeTa = document.getElementById("export-code");
+          var codeText = codeTa ? codeTa.value : exportPayload();
+          var copyDone = function (ok) {
+            backupUi.msg = ok ? "記録コードをコピーしました。メモアプリなどに貼って保管してください。" : "コピーできませんでした。コード全体を選択してコピーしてください。";
+            backupUi.msgOk = ok;
+            render();
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(codeText).then(function () { copyDone(true); }, function () {
+              if (codeTa) { codeTa.focus(); codeTa.select(); }
+              copyDone(false);
+            });
+          } else {
+            if (codeTa) { codeTa.focus(); codeTa.select(); }
+            copyDone(false);
+          }
+        } else if (action === "import-text") {
+          var importTa = document.getElementById("import-code");
+          var importText = importTa ? importTa.value.trim() : "";
+          if (!importText) {
+            backupUi.pending = null;
+            backupUi.msg = "コードが入力されていません。書き出した記録コードを貼り付けてから押してください。";
+            backupUi.msgOk = false;
+            render();
+          } else {
+            tryImport(importText);
+          }
+        } else if (action === "import-confirm") {
+          if (backupUi.pending) applyImport(backupUi.pending);
+          render();
+        } else if (action === "import-cancel") {
+          backupUi.pending = null;
+          backupUi.msg = "読み込みをキャンセルしました。今の記録はそのままです。";
+          backupUi.msgOk = true;
+          render();
+        } else if (action === "reset-do") {
+          state = emptyState();
+          try { window.localStorage.removeItem(STORAGE_KEY); window.localStorage.removeItem(STORAGE_BACKUP_KEY); } catch (e) {}
+          deleteCookie();
+          lsSaveOk = null; cookieSaveOk = null;
+          storageOK = probeStorage();
+          saveStatus = storageOK ? "ok" : "failed";
+          lastSavedAt = null;
+          backupUi = { showCode: false, msg: "", msgOk: true, pending: null };
+          saveState();
+          resetConfirming = false;
+          aiOpenState = {};
+          render();
+          window.scrollTo(0, 0);
+        }
+      });
+      document.addEventListener("change", function (ev) {
+        if (!ev.target || ev.target.id !== "import-file") return;
+        var f = ev.target.files && ev.target.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () { tryImport(String(reader.result || "")); };
+        reader.onerror = function () {
+          backupUi.pending = null;
+          backupUi.msg = "ファイルを読み込めませんでした。書き出した記録ファイルかどうか確認してください。";
+          backupUi.msgOk = false;
+          render();
+        };
+        reader.readAsText(f);
+      });
+
+      render();
+    </script>
+  </body>
+</html>
